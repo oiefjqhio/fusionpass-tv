@@ -1,0 +1,75 @@
+name: Fusion Pass upstream sync
+
+# Weekly: merge Nuvio's latest dev into a branch, re-apply fusionpass/rebrand.py, and open a PR
+# for review. Never pushes to the fusionpass branch. A merge conflict or a rebrand anchor that
+# moved (rebrand.py exits non-zero) opens an issue instead.
+on:
+  schedule:
+    - cron: "17 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: fusionpass-upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      UPSTREAM: https://github.com/NuvioMedia/NuvioTV.git
+      UPSTREAM_BRANCH: dev
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fusionpass
+          fetch-depth: 0
+      - name: Merge upstream and re-apply the rebrand
+        id: sync
+        run: |
+          git config user.name "fusionpass-bot"
+          git config user.email "noreply@fusionpass.shop"
+          git remote add upstream "$UPSTREAM"
+          git fetch --no-tags upstream "$UPSTREAM_BRANCH"
+          if git merge-base --is-ancestor "upstream/$UPSTREAM_BRANCH" HEAD; then
+            echo "Already up to date with upstream."; echo "result=uptodate" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          SHORT=$(git rev-parse --short "upstream/$UPSTREAM_BRANCH")
+          BRANCH="upstream-sync/$SHORT"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"; echo "short=$SHORT" >> "$GITHUB_OUTPUT"
+          git checkout -b "$BRANCH"
+          if ! git merge --no-edit "upstream/$UPSTREAM_BRANCH"; then
+            git diff --name-only --diff-filter=U > conflicts.txt || true
+            echo "result=conflict" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if ! python3 fusionpass/rebrand.py > rebrand.log 2>&1; then
+            echo "result=rebrand" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          git add -A
+          git commit -m "Re-apply Fusion Pass rebrand after upstream $SHORT" || true
+          git push origin "$BRANCH"
+          echo "result=ok" >> "$GITHUB_OUTPUT"
+      - name: Open a pull request
+        if: steps.sync.outputs.result == 'ok'
+        run: |
+          gh pr create --base fusionpass --head "${{ steps.sync.outputs.branch }}" \
+            --title "Upstream sync ${{ steps.sync.outputs.short }}" \
+            --body "Merged NuvioMedia/NuvioTV $UPSTREAM_BRANCH (${{ steps.sync.outputs.short }}) and re-applied fusionpass/rebrand.py. Review, then run the release workflow with the next rev after merging." \
+            || echo "PR already exists"
+      - name: Report a conflict or a moved rebrand anchor
+        if: steps.sync.outputs.result == 'conflict' || steps.sync.outputs.result == 'rebrand'
+        run: |
+          {
+            echo "Upstream NuvioMedia/NuvioTV $UPSTREAM_BRANCH (${{ steps.sync.outputs.short }}) could not be merged automatically."
+            echo
+            if [ -f conflicts.txt ]; then echo "Merge conflicts in:"; sed 's/^/- /' conflicts.txt; fi
+            if [ -f rebrand.log ]; then echo "fusionpass/rebrand.py failed:"; echo '```'; tail -20 rebrand.log; echo '```'; fi
+            echo
+            echo "Fix locally: merge upstream, update fusionpass/rebrand.py anchors, run it, commit to fusionpass."
+          } > body.md
+          gh issue create --title "Upstream sync needs attention (${{ steps.sync.outputs.short }})" --body-file body.md
