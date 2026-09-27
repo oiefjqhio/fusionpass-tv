@@ -44,10 +44,10 @@ jobs:
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"; echo "short=$SHORT" >> "$GITHUB_OUTPUT"
           git checkout -b "$BRANCH"
           if ! git merge --no-edit "upstream/$UPSTREAM_BRANCH"; then
-            git diff --name-only --diff-filter=U > conflicts.txt || true
+            git diff --name-only --diff-filter=U > "$RUNNER_TEMP/conflicts.txt" || true
             echo "result=conflict" >> "$GITHUB_OUTPUT"; exit 0
           fi
-          if ! python3 fusionpass/rebrand.py > rebrand.log 2>&1; then
+          if ! python3 fusionpass/rebrand.py > "$RUNNER_TEMP/rebrand.log" 2>&1; then
             echo "result=rebrand" >> "$GITHUB_OUTPUT"; exit 0
           fi
           git add -A
@@ -67,8 +67,8 @@ jobs:
           {
             echo "Upstream NuvioMedia/NuvioTV $UPSTREAM_BRANCH (${{ steps.sync.outputs.short }}) could not be merged automatically."
             echo
-            if [ -f conflicts.txt ]; then echo "Merge conflicts in:"; sed 's/^/- /' conflicts.txt; fi
-            if [ -f rebrand.log ]; then echo "fusionpass/rebrand.py failed:"; echo '```'; tail -20 rebrand.log; echo '```'; fi
+            if [ -f "$RUNNER_TEMP/conflicts.txt" ]; then echo "Merge conflicts in:"; sed 's/^/- /' "$RUNNER_TEMP/conflicts.txt"; fi
+            if [ -f "$RUNNER_TEMP/rebrand.log" ]; then echo "fusionpass/rebrand.py failed:"; echo '```'; tail -20 "$RUNNER_TEMP/rebrand.log"; echo '```'; fi
             echo
             echo "Fix locally: merge upstream, update fusionpass/rebrand.py anchors, run it, commit to fusionpass."
           } > body.md
