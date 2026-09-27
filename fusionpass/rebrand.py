@@ -121,6 +121,12 @@ edit(f'{J}/ui/screens/account/AuthQrSignInScreen.kt', [('"https://nuvio.tv/terms
 # 6. Names a user can see outside the string resources.
 edit(f'{J}/core/auth/DeviceSessionRegistration.kt', [('CLIENT_NAME = "Nuvio TV"', 'CLIENT_NAME = "Fusion Pass TV"')])
 
+# Audio defaults to English (owner decision); a language the user picks in Settings still wins.
+edit(f'{J}/data/local/PlayerSettingsDataStore.kt', [
+    ('    val preferredAudioLanguage: String = AudioLanguageOption.DEVICE,', '    val preferredAudioLanguage: String = "en", // Fusion Pass: English by default'),
+    ('                    prefs[preferredAudioLanguageKey] ?: AudioLanguageOption.DEVICE\n', '                    prefs[preferredAudioLanguageKey] ?: "en" // Fusion Pass\n'),
+])
+
 print('rebrand: ok,', len(changed), 'files changed')
 for c in changed[:60]:
     print('  ', c)
