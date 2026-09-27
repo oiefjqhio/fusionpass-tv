@@ -112,6 +112,9 @@ edit(f'{J}/ui/screens/settings/SettingsScreen.kt', [
 edit(f'{J}/ui/screens/settings/AboutScreen.kt', [('"https://nuvio.tv/privacy-policy"', '"https://fusionpass.shop/privacy"')])
 edit(f'{J}/ui/screens/account/AuthQrSignInScreen.kt', [('"https://nuvio.tv/terms"', '"https://fusionpass.shop/terms"')])
 
+# 6. Names a user can see outside the string resources.
+edit(f'{J}/core/auth/DeviceSessionRegistration.kt', [('CLIENT_NAME = "Nuvio TV"', 'CLIENT_NAME = "Fusion Pass TV"')])
+
 print('rebrand: ok,', len(changed), 'files changed')
 for c in changed[:60]:
     print('  ', c)
