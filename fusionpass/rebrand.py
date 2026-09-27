@@ -52,6 +52,24 @@ for path in glob.glob(f'{RES}/values*/strings.xml'):
         open(path, 'w', encoding='utf8').write(n)
         changed.append(os.path.relpath(path, ROOT))
 
+# English overrides for text that still describes Nuvio features we removed (Trakt, plugins, web panel).
+SHORT = {
+    'account_sign_in_description': 'Sign in with your Fusion Pass email and password.',
+    'profile_pin_overlay_forgot_hint': 'Forgot PIN? Reset it from your account.',
+    'cd_nuvio_logo': 'Fusion Pass',
+    'playback_player_internal_desc': 'Use the built-in player',
+}
+p = f'{RES}/values/strings.xml'
+s = open(p, encoding='utf8').read()
+n = s
+for k, v in SHORT.items():
+    n, c = re.subn(rf'(<string name="{k}"[^>]*>)[^<]*(</string>)', lambda m: m.group(1) + v + m.group(2), n)
+    if not c:
+        sys.exit(f'rebrand: string {k} not found (upstream changed; update rebrand.py)')
+if n != s:
+    open(p, 'w', encoding='utf8').write(n)
+    changed.append(os.path.relpath(p, ROOT))
+
 # 3. Build config: our app id, our backend defaults, our update channel, locked-down flavor.
 G = f'{ROOT}/app/build.gradle.kts'
 edit(G, [
