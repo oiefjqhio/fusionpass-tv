@@ -1,0 +1,98 @@
+name: Fusion Pass TV release
+
+# Builds the Fusion Pass Android TV APKs from this fork and publishes a GitHub release that the
+# in-app updater reads (GITHUB_OWNER/GITHUB_REPO point here). Tag = <upstream versionName>-fp<rev>.
+on:
+  workflow_dispatch:
+    inputs:
+      rev:
+        description: Fusion Pass revision on top of the upstream version (1, 2, ...)
+        required: true
+        default: "1"
+      publish:
+        description: Publish a release (false = build only, APKs as workflow artifacts)
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fusionpass-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check the branding is applied
+        run: |
+          python3 fusionpass/rebrand.py
+          git diff --quiet || { echo "rebrand.py changed files: run it locally and commit before releasing" >&2; git status --short; exit 1; }
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Version
+        id: v
+        run: |
+          base=$(sed -nE 's/^[[:space:]]*versionName = "([^"]+)"/\1/p' app/build.gradle.kts | head -1)
+          code=$(sed -nE 's/^[[:space:]]*versionCode = ([0-9]+)/\1/p' app/build.gradle.kts | head -1)
+          case "$base" in *-*) name="$base-fp${{ inputs.rev }}";; *) name="$base-fp${{ inputs.rev }}";; esac
+          newcode=$(( code * 100 + ${{ inputs.rev }} ))
+          sed -i -E "s/^([[:space:]]*versionName = )\"[^\"]+\"/\1\"$name\"/; s/^([[:space:]]*versionCode = )[0-9]+/\1$newcode/" app/build.gradle.kts
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "tag=v$name" >> "$GITHUB_OUTPUT"
+          echo "Building $name ($newcode)"
+
+      - name: Configure signing and backend
+        env:
+          KS: ${{ secrets.FP_KEYSTORE_BASE64 }}
+          ALIAS: ${{ secrets.FP_KEY_ALIAS }}
+          KEY_PW: ${{ secrets.FP_KEY_PASSWORD }}
+          STORE_PW: ${{ secrets.FP_STORE_PASSWORD }}
+          TMDB: ${{ secrets.FP_TMDB_API_KEY }}
+        run: |
+          printf '%s' "$KS" | base64 --decode > "$RUNNER_TEMP/fp.jks"
+          cp fusionpass/app.properties local.properties
+          printf 'TMDB_API_KEY=%s\n' "$TMDB" >> local.properties
+          {
+            echo "NUVIO_RELEASE_STORE_FILE=$RUNNER_TEMP/fp.jks"
+            echo "NUVIO_RELEASE_KEY_ALIAS=$ALIAS"
+            echo "NUVIO_RELEASE_KEY_PASSWORD=$KEY_PW"
+            echo "NUVIO_RELEASE_STORE_PASSWORD=$STORE_PW"
+          } >> "$GITHUB_ENV"
+
+      - name: Build
+        run: ./gradlew :app:assembleFullRelease --stacktrace
+
+      - name: Rename APKs
+        run: |
+          mkdir -p dist
+          for f in app/build/outputs/apk/full/release/*.apk; do
+            abi=$(basename "$f" .apk | sed -E 's/.*-full-//; s/-release$//; s/^release$/universal/')
+            cp "$f" "dist/FusionPass-TV-${{ steps.v.outputs.name }}-${abi}.apk"
+          done
+          ls -la dist
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: FusionPass-TV-${{ steps.v.outputs.name }}
+          path: dist/*.apk
+
+      - name: Publish release
+        if: inputs.publish
+        run: |
+          gh release create "${{ steps.v.outputs.tag }}" dist/*.apk \
+            --title "Fusion Pass TV ${{ steps.v.outputs.name }}" \
+            --notes "Fusion Pass for Android TV and Fire TV. Based on Nuvio TV (GPL-3.0); source in this repository." \
+            --prerelease --target "${GITHUB_SHA}"

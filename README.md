@@ -1,3 +1,5 @@
+> **Fusion Pass TV** is a fork of Nuvio TV (GPL-3.0). See [`fusionpass/README.md`](fusionpass/README.md) for what changed and how it is built.
+
 <div align="center">
 
   <img src="assets/brand/app_logo_wordmark.png" alt="Nuvio" width="300" />

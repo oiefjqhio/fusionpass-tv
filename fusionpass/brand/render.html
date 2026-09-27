@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:LS;src:url(LeagueSpartan.woff2) format('woff2');font-weight:100 900}
+html,body{margin:0;background:transparent}
+.box{display:flex;align-items:center;justify-content:center;overflow:hidden}
+.word{font-family:LS;font-weight:700;color:#fff;letter-spacing:-0.02em;white-space:nowrap}
+</style></head><body><div id="root"></div>
+<script>
+const q=new URLSearchParams(location.search), kind=q.get('k'), W=+q.get('w'), H=+q.get('h');
+const r=document.getElementById('root'); r.className='box'; r.style.width=W+'px'; r.style.height=H+'px';
+const logo=(s)=>`<img src="logo.svg" style="width:${s}px;height:${s}px;display:block">`;
+if(kind==='icon'){ r.innerHTML=logo(W); }
+if(kind==='mark'){ r.innerHTML=logo(Math.round(W*0.82)); }
+if(kind==='wordmark'){ r.style.gap=Math.round(H*0.12)+'px'; r.innerHTML=logo(Math.round(H*0.62))+`<span class="word" style="font-size:${Math.round(H*0.4)}px">Fusion Pass</span>`; }
+if(kind==='text'){ r.innerHTML=`<span class="word" style="font-size:${Math.round(H*0.72)}px">Fusion Pass</span>`; }
+if(kind==='banner'){ r.style.background='linear-gradient(135deg,#16151c,#0e0d12)'; r.style.gap=Math.round(H*0.08)+'px';
+  r.innerHTML=logo(Math.round(H*0.46))+`<span class="word" style="font-size:${Math.round(H*0.2)}px">Fusion Pass</span>`; }
+</script></body></html>
