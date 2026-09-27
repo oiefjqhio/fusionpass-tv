@@ -109,6 +109,12 @@ edit(f'{J}/ui/screens/settings/SettingsScreen.kt', [
      '                SettingsCategory.CONTENT_DISCOVERY -> false // Fusion Pass: addons come with the account\n'
      '                SettingsCategory.INTEGRATION -> false // Fusion Pass: no debrid/metadata setup\n'),
 ])
+# No tracking services (Trakt/Simkl need our own API apps; owner chose to hide them).
+edit(f'{J}/ui/screens/settings/SettingsScreen.kt', [
+    ('                SettingsCategory.INTEGRATION -> false // Fusion Pass: no debrid/metadata setup\n                SettingsCategory.ADVANCED',
+     '                SettingsCategory.INTEGRATION -> false // Fusion Pass: no debrid/metadata setup\n'
+     '                SettingsCategory.TRACKING -> false // Fusion Pass: no Trakt/Simkl\n                SettingsCategory.ADVANCED'),
+])
 edit(f'{J}/ui/screens/settings/AboutScreen.kt', [('"https://nuvio.tv/privacy-policy"', '"https://fusionpass.shop/privacy"')])
 edit(f'{J}/ui/screens/account/AuthQrSignInScreen.kt', [('"https://nuvio.tv/terms"', '"https://fusionpass.shop/terms"')])
 
