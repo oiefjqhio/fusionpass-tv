@@ -593,7 +593,7 @@ class StreamRepositoryImpl @Inject constructor(
             is NetworkResult.Success -> {
                 val streams = result.data.streams?.map { 
                     it.toDomain(addonName, addonLogo) 
-                } ?: emptyList()
+                }?.filterNot { it.isTorrent() } ?: emptyList() // Fusion Pass: no P2P
                 Log.d(TAG, "Streams success addon=$addonName count=${streams.size} url=$streamUrl")
                 NetworkResult.Success(streams)
             }
@@ -658,6 +658,7 @@ class StreamRepositoryImpl @Inject constructor(
                     val matchingVideo = metaDto.videos?.firstOrNull { it.id == videoId }
                     val streams = matchingVideo?.streams
                         ?.mapNotNull { it.toDomain(addon.displayName, addon.logo) }
+                        ?.filterNot { it.isTorrent() } // Fusion Pass: no P2P
                         ?: emptyList()
                     Log.d(TAG, "Inline streams from meta: addon=${addon.displayName} videoId=$videoId found=${streams.size}")
                     streams

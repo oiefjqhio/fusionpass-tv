@@ -159,7 +159,7 @@ fun AboutSettingsContent(
                                 onClick = {
                                     val intent = Intent(
                                         Intent.ACTION_VIEW,
-                                        Uri.parse("https://nuvio.tv/privacy-policy")
+                                        Uri.parse("https://fusionpass.shop/privacy")
                                     )
                                     context.startActivity(intent)
                                 }

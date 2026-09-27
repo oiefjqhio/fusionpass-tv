@@ -90,6 +90,28 @@ edit(f'{ROOT}/app/src/main/java/com/nuvio/tv/ui/screens/account/AccountViewModel
      'get() = serverConfiguration.capabilities.emailPasswordAuth // Fusion Pass'),
 ])
 
+# 5. Lock-down: never play torrents (owner rule: debrid, Usenet, HTTP only), no plugins, no
+#    donation screens for another project under our name, no addon/integration setup (the
+#    account comes fully configured), our own legal links.
+J = f'{ROOT}/app/src/main/java/com/nuvio/tv'
+edit(f'{J}/data/repository/StreamRepositoryImpl.kt', [
+    ("                    it.toDomain(addonName, addonLogo) \n                } ?: emptyList()",
+     "                    it.toDomain(addonName, addonLogo) \n                }?.filterNot { it.isTorrent() } ?: emptyList() // Fusion Pass: no P2P"),
+    ("                        ?.mapNotNull { it.toDomain(addon.displayName, addon.logo) }\n                        ?: emptyList()",
+     "                        ?.mapNotNull { it.toDomain(addon.displayName, addon.logo) }\n                        ?.filterNot { it.isTorrent() } // Fusion Pass: no P2P\n                        ?: emptyList()"),
+])
+edit(f'{ROOT}/app/src/full/java/com/nuvio/tv/core/build/AppFeaturePolicy.kt', [
+    ('val pluginsEnabled: Boolean = true', 'val pluginsEnabled: Boolean = false'),
+    ('val supportNuvioEnabled: Boolean = true', 'val supportNuvioEnabled: Boolean = false'),
+])
+edit(f'{J}/ui/screens/settings/SettingsScreen.kt', [
+    ('                SettingsCategory.CONTENT_DISCOVERY -> true\n                SettingsCategory.INTEGRATION -> true\n',
+     '                SettingsCategory.CONTENT_DISCOVERY -> false // Fusion Pass: addons come with the account\n'
+     '                SettingsCategory.INTEGRATION -> false // Fusion Pass: no debrid/metadata setup\n'),
+])
+edit(f'{J}/ui/screens/settings/AboutScreen.kt', [('"https://nuvio.tv/privacy-policy"', '"https://fusionpass.shop/privacy"')])
+edit(f'{J}/ui/screens/account/AuthQrSignInScreen.kt', [('"https://nuvio.tv/terms"', '"https://fusionpass.shop/terms"')])
+
 print('rebrand: ok,', len(changed), 'files changed')
 for c in changed[:60]:
     print('  ', c)

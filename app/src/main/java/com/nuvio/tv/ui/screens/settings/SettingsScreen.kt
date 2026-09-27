@@ -293,8 +293,8 @@ fun SettingsScreen(
                 SettingsCategory.PROFILES -> isPrimaryProfileActive
                 SettingsCategory.ACCOUNT -> isPrimaryProfileActive
                 SettingsCategory.LAYOUT -> true
-                SettingsCategory.CONTENT_DISCOVERY -> true
-                SettingsCategory.INTEGRATION -> true
+                SettingsCategory.CONTENT_DISCOVERY -> false // Fusion Pass: addons come with the account
+                SettingsCategory.INTEGRATION -> false // Fusion Pass: no debrid/metadata setup
                 SettingsCategory.ADVANCED -> true
                 else -> true
             }

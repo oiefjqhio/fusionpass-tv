@@ -686,7 +686,7 @@ private fun AuthTermsAcknowledgement() {
         Text(
             text = stringResource(R.string.auth_qr_terms_link),
             modifier = Modifier.clickable {
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://nuvio.tv/terms")))
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://fusionpass.shop/terms")))
             },
             style = MaterialTheme.typography.bodyMedium.copy(
                 color = AuthTextPrimary,
