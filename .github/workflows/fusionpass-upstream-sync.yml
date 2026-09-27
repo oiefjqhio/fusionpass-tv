@@ -57,7 +57,7 @@ jobs:
       - name: Open a pull request
         if: steps.sync.outputs.result == 'ok'
         run: |
-          gh pr create --base fusionpass --head "${{ steps.sync.outputs.branch }}" \
+          gh pr create --repo "$GITHUB_REPOSITORY" --base fusionpass --head "${{ steps.sync.outputs.branch }}" \
             --title "Upstream sync ${{ steps.sync.outputs.short }}" \
             --body "Merged NuvioMedia/NuvioTV $UPSTREAM_BRANCH (${{ steps.sync.outputs.short }}) and re-applied fusionpass/rebrand.py. Review, then run the release workflow with the next rev after merging." \
             || echo "PR already exists"
@@ -72,4 +72,4 @@ jobs:
             echo
             echo "Fix locally: merge upstream, update fusionpass/rebrand.py anchors, run it, commit to fusionpass."
           } > body.md
-          gh issue create --title "Upstream sync needs attention (${{ steps.sync.outputs.short }})" --body-file body.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "Upstream sync needs attention (${{ steps.sync.outputs.short }})" --body-file body.md
