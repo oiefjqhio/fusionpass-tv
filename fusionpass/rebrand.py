@@ -219,6 +219,18 @@ s2 = open(S, encoding='utf8').read()
 if 'FP_AUTO_LABEL =' not in s2:
     open(S, 'a', encoding='utf8').write('\n// Fusion Pass: the default audio setting\nprivate const val FP_AUTO_LABEL = "Auto (English, Japanese for anime)"\n')
 
+# No debrid names anywhere (owner 2026-09-28): drop the Premiumize / TorBox credits from Licenses. Their
+# settings (Connected Services) and cloud library are already unreachable (integrations hidden, no keys).
+import re as _re
+_L = f'{J}/ui/screens/settings/LicensesAttributionsScreen.kt'
+_s = open(_L, encoding='utf8').read()
+_n = _re.subn(r'    LicenseAttributionItem\(\n        title = stringResource\(R\.string\.licenses_attributions_(?:premiumize|torbox)_title\),.*?\n    \),\n', '', _s, flags=_re.S)
+if _n[1]:
+    open(_L, 'w', encoding='utf8').write(_n[0] + '// Fusion Pass: no debrid credits (rebrand.py)\n')
+    changed.append(os.path.relpath(_L, ROOT))
+elif 'Fusion Pass: no debrid credits' not in _s:
+    sys.exit(f'rebrand: Premiumize/TorBox credits not found in {_L} (upstream changed; update rebrand.py)')
+
 print('rebrand: ok,', len(changed), 'files changed')
 for c in changed[:60]:
     print('  ', c)

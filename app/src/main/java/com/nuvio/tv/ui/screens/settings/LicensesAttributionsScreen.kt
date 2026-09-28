@@ -391,18 +391,6 @@ private fun dataAttributionItems() = listOf(
         logo = LicenseLogo.Raw(R.raw.simkl_tv_glyph)
     ),
     LicenseAttributionItem(
-        title = stringResource(R.string.licenses_attributions_premiumize_title),
-        body = stringResource(R.string.licenses_attributions_premiumize_body),
-        url = PremiumizeUrl,
-        logo = LicenseLogo.Url(PremiumizeCloudLibraryPosterUrl)
-    ),
-    LicenseAttributionItem(
-        title = stringResource(R.string.licenses_attributions_torbox_title),
-        body = stringResource(R.string.licenses_attributions_torbox_body),
-        url = TorboxUrl,
-        logo = cloudLibraryDisplayArtworkUrl(TorboxCloudLibraryPosterUrl)?.let(LicenseLogo::Url)
-    ),
-    LicenseAttributionItem(
         title = stringResource(R.string.licenses_attributions_mdblist_title),
         body = stringResource(R.string.licenses_attributions_mdblist_body),
         url = MdbListUrl,
@@ -434,3 +422,4 @@ private fun playbackLicenseItems() = listOf(
         url = LibMpvAndroidUrl
     )
 )
+// Fusion Pass: no debrid credits (rebrand.py)
