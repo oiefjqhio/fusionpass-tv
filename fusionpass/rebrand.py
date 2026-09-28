@@ -146,7 +146,7 @@ edit(f'{J}/core/auth/DeviceSessionRegistration.kt', [('CLIENT_NAME = "Nuvio TV"'
 P = f'{J}/ui/screens/player'
 edit(f'{J}/data/local/PlayerSettingsDataStore.kt', [
     ('    const val ORIGINAL = "original"  // Use content\'s original language (from TMDB)\n',
-     '    const val ORIGINAL = "original"  // Use content\'s original language (from TMDB)\n    const val FP_AUTO = "fp_auto" // Fusion Pass: English, Japanese for anime\n'),
+     '    const val ORIGINAL = "original"  // Use content\'s original language (from TMDB)\n    const val FP_AUTO = "fpauto" // Fusion Pass: English, Japanese for anime (same value in every app: settings sync)\n'),
     ('    val preferredAudioLanguage: String = AudioLanguageOption.DEVICE,', '    val preferredAudioLanguage: String = AudioLanguageOption.FP_AUTO, // Fusion Pass'),
     ('                    prefs[preferredAudioLanguageKey] ?: AudioLanguageOption.DEVICE\n', '                    prefs[preferredAudioLanguageKey] ?: AudioLanguageOption.FP_AUTO // Fusion Pass\n'),
     ('        if (preferred == null || preferred == SubtitleLanguageOption.DEVICE) {\n            return ResolvedSubtitlePreferredLanguage(resolveDeviceSubtitleLanguage(), isSystemDefault = true)',

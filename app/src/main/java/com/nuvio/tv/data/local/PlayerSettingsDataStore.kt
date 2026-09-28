@@ -183,7 +183,7 @@ object AudioLanguageOption {
     const val DEFAULT = "default"  // Use media file default
     const val DEVICE = "device"    // Use device locale
     const val ORIGINAL = "original"  // Use content's original language (from TMDB)
-    const val FP_AUTO = "fp_auto" // Fusion Pass: English, Japanese for anime
+    const val FP_AUTO = "fpauto" // Fusion Pass: English, Japanese for anime (same value in every app: settings sync)
 }
 
 enum class AudioOutputChannels(
