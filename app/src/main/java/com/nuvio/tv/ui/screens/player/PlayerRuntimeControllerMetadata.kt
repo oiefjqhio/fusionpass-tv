@@ -65,6 +65,7 @@ internal fun PlayerRuntimeController.applyMetaDetails(meta: Meta) {
     if (contentLanguage == null) {
         contentLanguage = meta.resolveContentLanguage()
     }
+    fpApplyAnimeAudio() // Fusion Pass
     val description = resolveDescription(meta)
 
     recomputeNextEpisode(resetVisibility = false)

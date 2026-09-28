@@ -213,7 +213,8 @@ internal fun PlayerRuntimeController.initializePlayer(
                 preferredAudioLanguage = playerSettings.preferredAudioLanguage,
                 secondaryPreferredAudioLanguage = playerSettings.secondaryPreferredAudioLanguage,
                 deviceLanguages = resolveDeviceAudioLanguages(),
-                contentOriginalLanguage = contentLanguage
+                contentOriginalLanguage = contentLanguage,
+                isAnime = fpIsAnime()
             )
             mpvPreferredAudioLanguages = preferredAudioLanguages
             mpvHi10pGnextSoftwareFallbackEnabledSetting =
@@ -1966,7 +1967,8 @@ internal fun resolvePreferredAudioLanguages(
     preferredAudioLanguage: String,
     secondaryPreferredAudioLanguage: String?,
     deviceLanguages: List<String>,
-    contentOriginalLanguage: String? = null
+    contentOriginalLanguage: String? = null,
+    isAnime: Boolean = false // Fusion Pass
 ): List<String> {
     fun normalize(language: String?): String? {
         val normalized = language?.trim()?.lowercase()?.takeIf { it.isNotBlank() } ?: return null
@@ -1980,6 +1982,9 @@ internal fun resolvePreferredAudioLanguages(
     }
 
     return when (preferredAudioLanguage.trim().lowercase()) {
+        AudioLanguageOption.FP_AUTO -> listOfNotNull(
+            "ja".takeIf { isAnime }, "en", normalize(secondaryPreferredAudioLanguage)
+        ).distinct() // Fusion Pass
         AudioLanguageOption.DEFAULT -> listOfNotNull(
             normalize(secondaryPreferredAudioLanguage)
         ).distinct()

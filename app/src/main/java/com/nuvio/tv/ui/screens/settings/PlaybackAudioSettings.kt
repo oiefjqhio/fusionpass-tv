@@ -110,6 +110,7 @@ internal fun LazyListScope.trailerAndAudioSettingsItems(
 
     item(key = "audio_preferred_language") {
         val audioLangName = when (playerSettings.preferredAudioLanguage) {
+            AudioLanguageOption.FP_AUTO -> FP_AUTO_LABEL
             AudioLanguageOption.DEFAULT -> stringResource(R.string.audio_lang_default)
             AudioLanguageOption.DEVICE -> stringResource(R.string.audio_lang_device)
             AudioLanguageOption.ORIGINAL -> stringResource(R.string.audio_lang_original)
@@ -568,6 +569,7 @@ private fun AudioLanguageSelectionDialog(
     onDismiss: () -> Unit
 ) {
     val specialOptions = listOf(
+        AudioLanguageOption.FP_AUTO to FP_AUTO_LABEL,
         AudioLanguageOption.DEFAULT to stringResource(R.string.audio_lang_default),
         AudioLanguageOption.DEVICE to stringResource(R.string.audio_lang_device),
         AudioLanguageOption.ORIGINAL to stringResource(R.string.audio_lang_original)
@@ -775,3 +777,6 @@ internal fun DecoderPriorityDialog(
         maxHeight = 320.dp
     )
 }
+
+// Fusion Pass: the default audio setting
+private const val FP_AUTO_LABEL = "Auto (English, Japanese for anime)"

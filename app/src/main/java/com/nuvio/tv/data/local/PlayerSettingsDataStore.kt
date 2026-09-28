@@ -183,6 +183,7 @@ object AudioLanguageOption {
     const val DEFAULT = "default"  // Use media file default
     const val DEVICE = "device"    // Use device locale
     const val ORIGINAL = "original"  // Use content's original language (from TMDB)
+    const val FP_AUTO = "fp_auto" // Fusion Pass: English, Japanese for anime
 }
 
 enum class AudioOutputChannels(
@@ -234,7 +235,7 @@ data class PlayerSettings(
     val centerMixLevelDb: Int = 0,
     val persistAudioAmplification: Boolean = false,
     val rememberAudioDelayPerDevice: Boolean = true,
-    val preferredAudioLanguage: String = "en", // Fusion Pass: English by default
+    val preferredAudioLanguage: String = AudioLanguageOption.FP_AUTO, // Fusion Pass
     val secondaryPreferredAudioLanguage: String? = null,
     val loadingOverlayEnabled: Boolean = true,
     val showPlayerLoadingStatus: Boolean = true,
@@ -880,7 +881,7 @@ class PlayerSettingsDataStore @Inject constructor(
                 persistAudioAmplification = prefs[persistAudioAmplificationKey] ?: false,
                 rememberAudioDelayPerDevice = prefs[rememberAudioDelayPerDeviceKey] ?: true,
                 preferredAudioLanguage = normalizeSelectableLanguageCode(
-                    prefs[preferredAudioLanguageKey] ?: "en" // Fusion Pass
+                    prefs[preferredAudioLanguageKey] ?: AudioLanguageOption.FP_AUTO // Fusion Pass
                 ),
                 secondaryPreferredAudioLanguage = prefs[secondaryPreferredAudioLanguageKey]
                     ?.let(::normalizeSecondaryAudioLanguageCode),
@@ -1486,7 +1487,9 @@ class PlayerSettingsDataStore @Inject constructor(
         secondaryLanguage: String?
     ): ResolvedSubtitlePreferredLanguage {
         val preferred = preferredLanguage?.let(::normalizeSelectableLanguageCode)
-        if (preferred == null || preferred == SubtitleLanguageOption.DEVICE) {
+        // Fusion Pass: English subtitles unless the user picks a language
+        if (preferred == null) return ResolvedSubtitlePreferredLanguage("en", isSystemDefault = false)
+        if (preferred == SubtitleLanguageOption.DEVICE) {
             return ResolvedSubtitlePreferredLanguage(resolveDeviceSubtitleLanguage(), isSystemDefault = true)
         }
         if (preferred != SUBTITLE_LANGUAGE_FORCED) {

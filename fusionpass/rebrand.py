@@ -16,6 +16,8 @@ def edit(path, pairs, required=True):
     s = open(path, encoding='utf8').read()
     orig = s
     for a, b in pairs:
+        if a in b and b in s:
+            continue  # already applied; b extends a, so replacing again would repeat it
         if a not in s and b not in s and required:
             sys.exit(f'rebrand: anchor not found in {path}: {a[:80]!r} (upstream changed; update rebrand.py)')
         s = s.replace(a, b)
@@ -139,11 +141,83 @@ edit(f'{J}/ui/screens/account/AuthQrSignInScreen.kt', [('"https://nuvio.tv/terms
 # 6. Names a user can see outside the string resources.
 edit(f'{J}/core/auth/DeviceSessionRegistration.kt', [('CLIENT_NAME = "Nuvio TV"', 'CLIENT_NAME = "Fusion Pass TV"')])
 
-# Audio defaults to English (owner decision); a language the user picks in Settings still wins.
+# Audio and subtitles (owner decision 2026-09-28): by default English audio, or Japanese for anime, with English
+# subtitles on. The default is a setting of its own ("Auto"), so a language the user picks still wins.
+P = f'{J}/ui/screens/player'
 edit(f'{J}/data/local/PlayerSettingsDataStore.kt', [
-    ('    val preferredAudioLanguage: String = AudioLanguageOption.DEVICE,', '    val preferredAudioLanguage: String = "en", // Fusion Pass: English by default'),
-    ('                    prefs[preferredAudioLanguageKey] ?: AudioLanguageOption.DEVICE\n', '                    prefs[preferredAudioLanguageKey] ?: "en" // Fusion Pass\n'),
+    ('    const val ORIGINAL = "original"  // Use content\'s original language (from TMDB)\n',
+     '    const val ORIGINAL = "original"  // Use content\'s original language (from TMDB)\n    const val FP_AUTO = "fp_auto" // Fusion Pass: English, Japanese for anime\n'),
+    ('    val preferredAudioLanguage: String = AudioLanguageOption.DEVICE,', '    val preferredAudioLanguage: String = AudioLanguageOption.FP_AUTO, // Fusion Pass'),
+    ('                    prefs[preferredAudioLanguageKey] ?: AudioLanguageOption.DEVICE\n', '                    prefs[preferredAudioLanguageKey] ?: AudioLanguageOption.FP_AUTO // Fusion Pass\n'),
+    ('        if (preferred == null || preferred == SubtitleLanguageOption.DEVICE) {\n            return ResolvedSubtitlePreferredLanguage(resolveDeviceSubtitleLanguage(), isSystemDefault = true)',
+     '        // Fusion Pass: English subtitles unless the user picks a language\n        if (preferred == null) return ResolvedSubtitlePreferredLanguage("en", isSystemDefault = false)\n        if (preferred == SubtitleLanguageOption.DEVICE) {\n            return ResolvedSubtitlePreferredLanguage(resolveDeviceSubtitleLanguage(), isSystemDefault = true)'),
 ])
+edit(f'{P}/PlayerRuntimeControllerInitialization.kt', [
+    ('    contentOriginalLanguage: String? = null\n): List<String> {', '    contentOriginalLanguage: String? = null,\n    isAnime: Boolean = false // Fusion Pass\n): List<String> {'),
+    ('    return when (preferredAudioLanguage.trim().lowercase()) {\n',
+     '    return when (preferredAudioLanguage.trim().lowercase()) {\n        AudioLanguageOption.FP_AUTO -> listOfNotNull(\n            "ja".takeIf { isAnime }, "en", normalize(secondaryPreferredAudioLanguage)\n        ).distinct() // Fusion Pass\n'),
+    ('                contentOriginalLanguage = contentLanguage\n            )\n            mpvPreferredAudioLanguages = preferredAudioLanguages',
+     '                contentOriginalLanguage = contentLanguage,\n                isAnime = fpIsAnime()\n            )\n            mpvPreferredAudioLanguages = preferredAudioLanguages'),
+])
+edit(f'{P}/PlayerRuntimeControllerObservers.kt', [
+    ('                contentOriginalLanguage = contentLanguage\n            )\n            if (resolvedAudioLanguages != mpvPreferredAudioLanguages) {',
+     '                contentOriginalLanguage = contentLanguage,\n                isAnime = fpIsAnime()\n            )\n            if (resolvedAudioLanguages != mpvPreferredAudioLanguages) {'),
+])
+edit(f'{P}/PlayerRuntimeControllerMetadata.kt', [
+    ('        contentLanguage = meta.resolveContentLanguage()\n    }\n    val description = resolveDescription(meta)',
+     '        contentLanguage = meta.resolveContentLanguage()\n    }\n    fpApplyAnimeAudio() // Fusion Pass\n    val description = resolveDescription(meta)'),
+])
+FP_ANIME = '''package com.nuvio.tv.ui.screens.player
+
+import com.nuvio.tv.data.local.AudioLanguageOption
+
+// Fusion Pass: the "Auto" audio default plays anime in Japanese (English subtitles follow from the
+// subtitle default) and everything else in English. Written by fusionpass/rebrand.py.
+
+internal fun PlayerRuntimeController.fpIsAnime(): Boolean {
+    val id = currentVideoId.orEmpty()
+    if (listOf("kitsu:", "mal:", "anilist:", "anidb:").any { id.startsWith(it) }) return true
+    if (metaGenres.any { it.equals("anime", ignoreCase = true) }) return true
+    val animation = metaGenres.any { it.equals("animation", ignoreCase = true) }
+    return animation && (metaCountry?.contains("Japan", ignoreCase = true) == true || contentLanguage == "ja")
+}
+
+/** Re-applies the audio preference once the genres arrive, if the title turns out to be anime. */
+internal fun PlayerRuntimeController.fpApplyAnimeAudio() {
+    val settings = currentPlayerSettingsForReport
+    if (settings.preferredAudioLanguage != AudioLanguageOption.FP_AUTO) return
+    if (persistedTrackPreference?.audio != null || !fpIsAnime()) return
+    val resolved = resolvePreferredAudioLanguages(
+        preferredAudioLanguage = settings.preferredAudioLanguage,
+        secondaryPreferredAudioLanguage = settings.secondaryPreferredAudioLanguage,
+        deviceLanguages = emptyList(),
+        contentOriginalLanguage = contentLanguage,
+        isAnime = true
+    )
+    if (resolved == mpvPreferredAudioLanguages) return
+    mpvPreferredAudioLanguages = resolved
+    _exoPlayer?.let { player ->
+        player.trackSelectionParameters = player.trackSelectionParameters
+            .buildUpon()
+            .setPreferredAudioLanguages(*resolved.toTypedArray())
+            .build()
+    }
+    if (isUsingMpvEngine()) mpvView?.applyAudioLanguagePreferences(resolved)
+}
+'''
+if not os.path.exists(f'{P}/FusionPassAnimeAudio.kt') or open(f'{P}/FusionPassAnimeAudio.kt', encoding='utf8').read() != FP_ANIME:
+    open(f'{P}/FusionPassAnimeAudio.kt', 'w', encoding='utf8').write(FP_ANIME)
+    changed.append('app/src/main/java/com/nuvio/tv/ui/screens/player/FusionPassAnimeAudio.kt')
+S = f'{J}/ui/screens/settings/PlaybackAudioSettings.kt'
+edit(S, [
+    ('            AudioLanguageOption.DEFAULT -> stringResource(R.string.audio_lang_default)\n            AudioLanguageOption.DEVICE -> stringResource(R.string.audio_lang_device)\n            AudioLanguageOption.ORIGINAL -> stringResource(R.string.audio_lang_original)\n            else -> AVAILABLE_SUBTITLE_LANGUAGES',
+     '            AudioLanguageOption.FP_AUTO -> FP_AUTO_LABEL\n            AudioLanguageOption.DEFAULT -> stringResource(R.string.audio_lang_default)\n            AudioLanguageOption.DEVICE -> stringResource(R.string.audio_lang_device)\n            AudioLanguageOption.ORIGINAL -> stringResource(R.string.audio_lang_original)\n            else -> AVAILABLE_SUBTITLE_LANGUAGES'),
+    ('    val specialOptions = listOf(\n        AudioLanguageOption.DEFAULT to stringResource(R.string.audio_lang_default),',
+     '    val specialOptions = listOf(\n        AudioLanguageOption.FP_AUTO to FP_AUTO_LABEL,\n        AudioLanguageOption.DEFAULT to stringResource(R.string.audio_lang_default),'),
+])
+s2 = open(S, encoding='utf8').read()
+if 'FP_AUTO_LABEL =' not in s2:
+    open(S, 'a', encoding='utf8').write('\n// Fusion Pass: the default audio setting\nprivate const val FP_AUTO_LABEL = "Auto (English, Japanese for anime)"\n')
 
 print('rebrand: ok,', len(changed), 'files changed')
 for c in changed[:60]:
