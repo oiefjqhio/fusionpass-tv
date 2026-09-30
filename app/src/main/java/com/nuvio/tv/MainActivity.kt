@@ -805,12 +805,10 @@ open class MainActivity : ComponentActivity() {
                         val url = pendingDeepLink ?: return@LaunchedEffect
                         val deepLink = DeepLinkParser.parse(url)
                         if (deepLink is AppDeepLink.AddonInstall && (needsEssentialAddonSetup || !layoutChosen)) {
-                            Toast.makeText(context, context.getString(R.string.addon_installing), Toast.LENGTH_SHORT).show()
-                            val installResult = deepLinkHandler.installAddon(deepLink.manifestUrl)
+                            // Fusion Pass: no addon installs from links, first-run setup included (review 22 F4).
                             if (pendingDeepLinkUrl.value == url) {
                                 pendingDeepLinkUrl.value = null
                             }
-                            Toast.makeText(context, installResult.message, Toast.LENGTH_LONG).show()
                         }
                     }
 
@@ -971,15 +969,9 @@ open class MainActivity : ComponentActivity() {
                                 }
                             }
                             is AppDeepLink.AddonInstall -> {
-                                navController.navigate(Screen.AddonManager.route) {
-                                    launchSingleTop = true
-                                }
-                                Toast.makeText(context, context.getString(R.string.addon_installing), Toast.LENGTH_SHORT).show()
-                                val installResult = deepLinkHandler.installAddon(deepLink.manifestUrl)
-                                if (pendingDeepLinkUrl.value == url) {
-                                    pendingDeepLinkUrl.value = null
-                                }
-                                Toast.makeText(context, installResult.message, Toast.LENGTH_LONG).show()
+                                // Fusion Pass: addons are managed by the pass; a stremio:// or nuvio://<host> link
+                                // must not install one or open the hidden Addon Manager (review 22 F4).
+                                pendingDeepLinkUrl.value = null
                             }
                             null -> {
                                 pendingDeepLinkUrl.value = null

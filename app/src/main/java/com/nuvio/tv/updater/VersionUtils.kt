@@ -26,6 +26,14 @@ internal data class SemanticVersion(
     }
 
     private fun comparePrereleaseIdentifier(left: String, right: String): Int {
+        // Fusion Pass: tags end in -fp<N>. Compare that revision as a number, or "fp10" sorts below
+        // "fp9" and every device stops updating at fp9 (code review 2026-09-29, report 22 F2).
+        val fpRev = Regex("^(.*?)fp(\\d+)$")
+        val fpLeft = fpRev.matchEntire(left)
+        val fpRight = fpRev.matchEntire(right)
+        if (fpLeft != null && fpRight != null && fpLeft.groupValues[1] == fpRight.groupValues[1]) {
+            return compareValues(fpLeft.groupValues[2].toLong(), fpRight.groupValues[2].toLong())
+        }
         val leftNumeric = left.all(Char::isDigit)
         val rightNumeric = right.all(Char::isDigit)
 
