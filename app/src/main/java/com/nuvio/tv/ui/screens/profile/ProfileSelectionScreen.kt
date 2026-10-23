@@ -1,6 +1,7 @@
 package com.nuvio.tv.ui.screens.profile
 
 import androidx.tv.material3.MaterialTheme
+import com.nuvio.tv.ui.theme.NuvioPrimitives
 import com.nuvio.tv.ui.util.contentTextDirection
 import com.nuvio.tv.ui.theme.NuvioMotion
 
@@ -20,6 +21,9 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -90,6 +94,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
@@ -225,7 +230,7 @@ fun ProfileSelectionScreen(
         profileBackgroundCatalog.associateBy { it.id }
     }
     val memberAccess = Membership.access
-    var focusedAvatarColor by remember { mutableStateOf(Color(0xFF1E88E5)) }
+    var focusedAvatarColor by remember { mutableStateOf(NuvioPrimitives.blue500) }
     var focusedProfileId by remember { mutableStateOf<Int?>(null) }
     var showCreateProfile by remember { mutableStateOf(false) }
     var longPressedProfile by remember { mutableStateOf<UserProfile?>(null) }
@@ -818,7 +823,7 @@ private fun ProfileSelectionBackground(
     // Use fixed dark colors so the gradient is consistent.
     // Otherwise, profile selector and splash screen needs to know about user template
     val baseBg = Color(0xFF121212)
-    val baseBgElevated = Color(0xFF1E1E1E)
+    val baseBgElevated = NuvioPrimitives.neutral875
     val gradientTop = lerp(baseBgElevated, animatedAvatarColor, 0.3f)
     val gradientMid = lerp(baseBg, animatedAvatarColor, 0.14f)
     val halfFadeStrong = animatedAvatarColor.copy(alpha = 0.26f)
@@ -1151,6 +1156,7 @@ private fun ProfileCard(
                 indication = null,
                 onClick = onClick
             )
+            .semantics { role = Role.Button }
             .padding(
                 horizontal = ProfileSelectionSpacing.CardPaddingHorizontal,
                 vertical = ProfileSelectionSpacing.CardPaddingVertical
@@ -1254,7 +1260,7 @@ private fun ProfileCard(
 
 private fun parseProfileColor(colorHex: String): Color {
     return runCatching { Color(android.graphics.Color.parseColor(colorHex)) }
-        .getOrDefault(Color(0xFF1E88E5))
+        .getOrDefault(NuvioPrimitives.blue500)
 }
 
 @Composable
@@ -1314,6 +1320,7 @@ private fun AddProfileCard(
                 indication = null,
                 onClick = onClick
             )
+            .semantics { role = Role.Button }
             .padding(
                 horizontal = ProfileSelectionSpacing.CardPaddingHorizontal,
                 vertical = ProfileSelectionSpacing.CardPaddingVertical
@@ -2537,7 +2544,8 @@ private fun ProfileNameField(
                 .onFocusChanged { isFocused = it.isFocused },
             textStyle = TextStyle(
                 color = Color.White,
-                fontSize = 16.sp
+                fontSize = 16.sp,
+                textDirection = TextDirection.Content
             ),
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -2626,6 +2634,7 @@ private fun OverlayButton(
                 enabled = enabled,
                 onClick = onClick
             )
+            .semantics { role = Role.Button }
             .padding(horizontal = 28.dp, vertical = NuvioTheme.spacing.md),
         contentAlignment = Alignment.Center
     ) {

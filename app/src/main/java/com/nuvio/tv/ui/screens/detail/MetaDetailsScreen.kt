@@ -60,6 +60,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
@@ -67,6 +68,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.runtime.State
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -365,35 +370,6 @@ internal fun resolveReturnFocusStep(
 
 private const val RETURN_FOCUS_SEASON_ADVANCE_WAIT_MS = 400L
 
-private fun resolveHeroPlaybackVideo(
-    meta: Meta,
-    nextToWatch: NextToWatch?,
-    episodesForSeason: List<Video>
-): Video? {
-    if (meta.type != ContentType.SERIES && meta.videos.isEmpty()) return null
-
-    val byId = nextToWatch?.nextVideoId?.let { id ->
-        meta.videos.firstOrNull { it.id == id }
-    }
-    val bySeasonEpisode = if (
-        byId == null &&
-        nextToWatch?.nextSeason != null &&
-        nextToWatch.nextEpisode != null
-    ) {
-        meta.videos.firstOrNull {
-            it.season == nextToWatch.nextSeason && it.episode == nextToWatch.nextEpisode
-        }
-    } else {
-        null
-    }
-    val defaultVideoId = meta.behaviorHints?.defaultVideoId
-    val defaultVideo = meta.videos.firstOrNull {
-        it.id == defaultVideoId && it.available != false
-    }
-
-    return byId ?: bySeasonEpisode ?: defaultVideo ?: episodesForSeason.firstOrNull()
-}
-
 private const val USER_INTERACTION_DISPATCH_DEBOUNCE_MS = 120L
 
 
@@ -535,6 +511,7 @@ fun MetaDetailsScreen(
 
     val currentIsTrailerPlaying by rememberUpdatedState(uiState.isTrailerPlaying)
     val currentShowTrailerControls by rememberUpdatedState(uiState.showTrailerControls)
+    val trailerControllerFocusRequester = remember { FocusRequester() }
     var trailerSeekOverlayVisible by remember { mutableStateOf(false) }
     val trailerSeekOverlayState = remember { TrailerSeekOverlayState() }
     var trailerSeekToken by remember { mutableIntStateOf(0) }
@@ -544,6 +521,12 @@ fun MetaDetailsScreen(
         { position: Long, duration: Long ->
             trailerSeekOverlayState.positionMs = position
             trailerSeekOverlayState.durationMs = duration
+        }
+    }
+
+    LaunchedEffect(uiState.isTrailerPlaying, uiState.showTrailerControls) {
+        if (uiState.isTrailerPlaying && uiState.showTrailerControls) {
+            trailerControllerFocusRequester.requestFocusAfterFrames()
         }
     }
 
@@ -828,6 +811,10 @@ fun MetaDetailsScreen(
                     }
                     if (!playbackAvailability.isLoaded) return@LaunchedEffect
                     playOnLoadConsumed.value = true
+                    if (uiState.shufflePoolEmpty) {
+                        playOnLoadReturnObserved.value = true
+                        return@LaunchedEffect
+                    }
                     if (!playbackAvailability.canStream(meta.apiType, playOnLoadVideo?.id ?: meta.id, meta.id, playOnLoadVideo)) {
                         playOnLoadReturnObserved.value = true
                         Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
@@ -877,6 +864,10 @@ fun MetaDetailsScreen(
                     watchedEpisodes = uiState.watchedEpisodes,
                     episodeWatchedPendingKeys = uiState.episodeWatchedPendingKeys,
                     blurUnwatchedEpisodes = uiState.blurUnwatchedEpisodes,
+                    randomEpisodeEnabled = uiState.randomEpisodeEnabled,
+                    episodeShuffle = uiState.episodeShuffle,
+                    shufflePoolEmpty = uiState.shufflePoolEmpty,
+                    onEpisodeShuffleChange = viewModel::setEpisodeShuffle,
                     episodeOptionsOverlayStyle = uiState.episodeOptionsOverlayStyle,
                     showFullReleaseDate = uiState.showFullReleaseDate,
                     overallRatingsVisibility = uiState.overallRatingsVisibility,
@@ -893,6 +884,7 @@ fun MetaDetailsScreen(
                     isEpisodeRatingsLoading = uiState.isEpisodeRatingsLoading,
                     episodeRatingsError = uiState.episodeRatingsError,
                     mdbListRatings = uiState.mdbListRatings,
+                    mdbListRatingOrder = uiState.mdbListRatingOrder,
                     isMdbListRatingsActive = uiState.isMdbListRatingsActive,
                     tmdbRating = uiState.tmdbRating,
                     comments = uiState.comments,
@@ -980,6 +972,8 @@ fun MetaDetailsScreen(
                     trailerUrl = uiState.trailerUrl,
                     trailerAudioUrl = uiState.trailerAudioUrl,
                     isTrailerPlaying = uiState.isTrailerPlaying,
+                    isBackgroundTrailerPlaying = uiState.isBackgroundTrailerPlaying,
+                    pauseBackgroundTrailerOnScroll = uiState.pauseBackgroundTrailerOnScroll,
                     isTrailerPaused = isTrailerPaused,
                     showTrailerControls = uiState.showTrailerControls,
                     hideLogoDuringTrailer = uiState.hideLogoDuringTrailer,
@@ -1049,7 +1043,11 @@ fun MetaDetailsScreen(
                         }
                     },
                     onTrailerProgressChanged = onTrailerProgressChanged,
-                    onTrailerEnded = { viewModel.onEvent(MetaDetailsEvent.OnTrailerEnded) },
+                    onTrailerEnded = {
+                        restorePlayFocusAfterTrailerBackToken += 1
+                        isTrailerPaused = false
+                        viewModel.onEvent(MetaDetailsEvent.OnTrailerEnded)
+                    },
                     onTrailerButtonClick = { viewModel.onEvent(MetaDetailsEvent.OnTrailerButtonClick) },
                     onSharedTrailerSelected = { viewModel.onEvent(MetaDetailsEvent.OnSharedTrailerSelected(it)) },
                     onDismissSharedTrailer = { viewModel.onEvent(MetaDetailsEvent.OnDismissSharedTrailer) },
@@ -1145,6 +1143,15 @@ fun MetaDetailsScreen(
             }
         }
 
+        if (uiState.isTrailerPlaying && uiState.showTrailerControls) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .focusRequester(trailerControllerFocusRequester)
+                    .focusable()
+            )
+        }
+
         TrailerSeekOverlayHost(
             visible = uiState.isTrailerPlaying && uiState.showTrailerControls && trailerSeekOverlayVisible,
             overlayState = trailerSeekOverlayState,
@@ -1196,6 +1203,10 @@ private fun MetaDetailsContent(
     watchedEpisodes: Set<Pair<Int, Int>>,
     episodeWatchedPendingKeys: Set<String>,
     blurUnwatchedEpisodes: Boolean,
+    randomEpisodeEnabled: Boolean,
+    episodeShuffle: com.nuvio.tv.domain.model.EpisodeShuffleSettings,
+    shufflePoolEmpty: Boolean,
+    onEpisodeShuffleChange: suspend (com.nuvio.tv.domain.model.EpisodeShuffleSettings) -> Boolean,
     episodeOptionsOverlayStyle: EpisodeOptionsOverlayStyle,
     showFullReleaseDate: Boolean,
     overallRatingsVisibility: HomeImdbRatingsVisibility,
@@ -1212,6 +1223,7 @@ private fun MetaDetailsContent(
     isEpisodeRatingsLoading: Boolean,
     episodeRatingsError: String?,
     mdbListRatings: MDBListRatings?,
+    mdbListRatingOrder: List<String> = com.nuvio.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER,
     isMdbListRatingsActive: Boolean,
     tmdbRating: Float?,
     comments: List<TraktCommentReview>,
@@ -1245,6 +1257,8 @@ private fun MetaDetailsContent(
     trailerUrl: String?,
     trailerAudioUrl: String?,
     isTrailerPlaying: Boolean,
+    isBackgroundTrailerPlaying: Boolean,
+    pauseBackgroundTrailerOnScroll: Boolean,
     isTrailerPaused: Boolean = false,
     showTrailerControls: Boolean,
     hideLogoDuringTrailer: Boolean,
@@ -1335,7 +1349,10 @@ private fun MetaDetailsContent(
         }
     }
     val selectedSeasonFocusRequester = remember { FocusRequester() }
-    val heroPlayFocusRequester = remember { FocusRequester() }
+    val heroPlayButtonFocusRequester = remember { FocusRequester() }
+    var synopsisTruncated by remember(meta.id, meta.description) { mutableStateOf(false) }
+    val heroPlayFocusRequester = if (synopsisTruncated) null else heroPlayButtonFocusRequester
+    val randomEpisodeFocusRequester = remember { FocusRequester() }
     val castTabFocusRequester = remember { FocusRequester() }
     val moreLikeTabFocusRequester = remember { FocusRequester() }
     val trailerTabFocusRequester = remember { FocusRequester() }
@@ -1366,6 +1383,17 @@ private fun MetaDetailsContent(
     var initialHeroFocusRequested by rememberSaveable(meta.id) { mutableStateOf(false) }
     var showHeroPlayOptionsDialog by rememberSaveable(meta.id) { mutableStateOf(false) }
     var showSynopsisOverlay by rememberSaveable(meta.id) { mutableStateOf(false) }
+    var showRandomEpisodeOverlay by rememberSaveable(meta.id) { mutableStateOf(false) }
+    var randomEpisodePlaybackPending by rememberSaveable(meta.id) { mutableStateOf(false) }
+    var stoppingShuffle by remember(meta.id) { mutableStateOf(false) }
+    val showRandomEpisodeButton = remember(randomEpisodeEnabled, isSeries, meta.videos, episodeShuffle.enabled) {
+        randomEpisodeEnabled && isSeries && (episodeShuffle.enabled || meta.videos.any {
+            (it.season ?: 0) > 0 && (it.episode ?: 0) > 0
+        })
+    }
+    LaunchedEffect(showRandomEpisodeButton) {
+        if (!showRandomEpisodeButton) showRandomEpisodeOverlay = false
+    }
     var lastReturnFocusRestoreId by rememberSaveable(
         meta.id,
         detailReturnEpisodeFocusRequest?.season,
@@ -1630,6 +1658,7 @@ private fun MetaDetailsContent(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
+                randomEpisodePlaybackPending = false
                 launchPendingFocusRestore()
             }
         }
@@ -1779,6 +1808,12 @@ private fun MetaDetailsContent(
             (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset > 200)
         }
     }
+
+    val belowHeroAlpha = animateFloatAsState(
+        targetValue = if (isTrailerPlaying) 0f else 1f,
+        animationSpec = tween(NuvioMotion.tokens.durations.overlay),
+        label = "belowHeroFade"
+    )
 
     // Pre-compute cast members to avoid recomputation in lazy scope
     val castMembersToShow = remember(meta.castMembers, meta.cast) {
@@ -2114,7 +2149,7 @@ private fun MetaDetailsContent(
         ) {
             repeat(3) {
                 if (initialHeroFocusRequested) return@repeat
-                heroPlayFocusRequester.requestFocusAfterFrames()
+                heroPlayButtonFocusRequester.requestFocusAfterFrames()
                 delay(80)
             }
         }
@@ -2252,7 +2287,12 @@ private fun MetaDetailsContent(
 
     // Always-composed bottom gradient alpha (avoids add/remove during scroll)
 
-    Box(modifier = modifier.fillMaxSize().background(backgroundColor)) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(backgroundColor)
+            .onPreviewKeyEvent { randomEpisodePlaybackPending }
+    ) {
         // Sticky background — backdrop or trailer
         BackdropLayer(
             backdropRequest = backdropRequest,
@@ -2260,6 +2300,8 @@ private fun MetaDetailsContent(
             trailerUrl = trailerUrl,
             trailerAudioUrl = trailerAudioUrl,
             isTrailerPlaying = isTrailerPlaying,
+            isBackgroundTrailerPlaying = isBackgroundTrailerPlaying,
+            pauseBackgroundTrailerOnScroll = pauseBackgroundTrailerOnScroll,
             isTrailerPaused = isTrailerPaused,
             showTrailerControls = showTrailerControls,
             trailerSeekToken = trailerSeekToken,
@@ -2274,7 +2316,9 @@ private fun MetaDetailsContent(
 
         // Single scrollable column with hero + content
         CompositionLocalProvider(
-            LocalBringIntoViewSpec provides if (suppressRestoreBringIntoView) {
+            // The hero grows to full height during a trailer; keep the list from
+            // scrolling to follow the focused hero while it resizes.
+            LocalBringIntoViewSpec provides if (suppressRestoreBringIntoView || isTrailerPlaying) {
                 restoreNoScrollBringIntoViewSpec
             } else {
                 detailPageBringIntoViewSpec
@@ -2284,6 +2328,7 @@ private fun MetaDetailsContent(
             modifier = Modifier
                 .fillMaxSize()
                 .recompositionHighlighter()
+                .fadeBelowHero(listState, belowHeroAlpha)
                 .onPreviewKeyEvent { event ->
                     val native = event.nativeKeyEvent
                     if (native.action == KeyEvent.ACTION_DOWN) {
@@ -2366,7 +2411,7 @@ private fun MetaDetailsContent(
                         fun requesterForKey(key: Any?): FocusRequester? {
                             val name = key as? String ?: return null
                             return when {
-                                name == "hero" -> heroPlayFocusRequester
+                                name == "hero" -> heroPlayButtonFocusRequester
                                 name == "season_tabs" -> selectedSeasonFocusRequester
                                 name.startsWith("episodes_") ->
                                     seasonDownFocusRequester ?: selectedSeasonFocusRequester
@@ -2424,9 +2469,9 @@ private fun MetaDetailsContent(
                         meta = meta,
                         nextEpisode = nextEpisode,
                         nextToWatch = nextToWatch,
-                        onPlayClick = heroPlayClick,
-                        isPlayEnabled = isPlayEnabled,
-                        onPlayLongPress = if (isPlayEnabled && (showManualPlayOption || nextToWatch?.isResume == true)) {
+                        onPlayClick = { if (shufflePoolEmpty) showRandomEpisodeOverlay = true else heroPlayClick() },
+                        isPlayEnabled = shufflePoolEmpty || isPlayEnabled,
+                        onPlayLongPress = if (!shufflePoolEmpty && isPlayEnabled && (showManualPlayOption || nextToWatch?.isResume == true)) {
                             { showHeroPlayOptionsDialog = true }
                         } else {
                             null
@@ -2438,14 +2483,33 @@ private fun MetaDetailsContent(
                         isMovieWatchedPending = isMovieWatchedPending,
                         onToggleMovieWatched = onToggleMovieWatched,
                         mdbListRatings = visibleMdbListRatings,
+                        mdbListRatingOrder = mdbListRatingOrder,
                         hideMetaInfoImdb = !showStandardOverallRatings,
                         tmdbRating = tmdbRating.takeIf { showStandardOverallRatings },
                         showFullReleaseDate = showFullReleaseDate,
                         trailerAvailable = trailerButtonEnabled && !trailerUrl.isNullOrBlank(),
                         onTrailerClick = onTrailerButtonClick,
+                        showRandomEpisodeButton = showRandomEpisodeButton,
+                        onRandomEpisodeClick = {
+                            if (!episodeShuffle.enabled) {
+                                showRandomEpisodeOverlay = true
+                            } else if (!stoppingShuffle) {
+                                stoppingShuffle = true
+                                coroutineScope.launch {
+                                    try {
+                                        onEpisodeShuffleChange(episodeShuffle.copy(enabled = false))
+                                    } finally {
+                                        stoppingShuffle = false
+                                    }
+                                }
+                            }
+                        },
+                        episodeShuffle = episodeShuffle,
+                        shuffleActionPending = stoppingShuffle,
+                        randomEpisodeFocusRequester = randomEpisodeFocusRequester,
                         hideLogoDuringTrailer = hideLogoDuringTrailer,
                         isTrailerPlaying = isTrailerPlaying,
-                        playButtonFocusRequester = heroPlayFocusRequester,
+                        playButtonFocusRequester = heroPlayButtonFocusRequester,
                         onHeroActionFocused = {
                             if (listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0) {
                                 coroutineScope.launch {
@@ -2464,7 +2528,8 @@ private fun MetaDetailsContent(
                             initialHeroFocusRequested = true
                             clearPendingRestore()
                         },
-                        onShowFullDescription = { showSynopsisOverlay = true }
+                        onShowFullDescription = { showSynopsisOverlay = true },
+                        onTruncationChanged = { synopsisTruncated = it }
                     )
                 }
             }
@@ -2525,7 +2590,7 @@ private fun MetaDetailsContent(
                             onOpenEpisodeComments = episodeCommentsClick,
                             showOpenEpisodeComments = shouldShowCommentsSection,
                             onMarkPreviousEpisodesWatched = onMarkPreviousEpisodesWatched,
-                            upFocusRequester = if (showSeasonTabs) selectedSeasonFocusRequester else heroPlayFocusRequester,
+                            upFocusRequester = if (showSeasonTabs) selectedSeasonFocusRequester else (heroPlayFocusRequester ?: heroPlayButtonFocusRequester),
                             downFocusRequester = episodesDownFocusRequester,
                             episodeFocusRequesters = seasonEpisodeFocusRequesters,
                             restoreEpisodeId = visibleEpisodeRestoreId,
@@ -3015,6 +3080,47 @@ private fun MetaDetailsContent(
             )
         }
 
+        if (showRandomEpisodeOverlay && showRandomEpisodeButton) {
+            EpisodeShuffleDialog(
+                meta = meta,
+                shuffleSettings = episodeShuffle,
+                onSaveSettings = onEpisodeShuffleChange,
+                watchedEpisodes = watchedEpisodes,
+                episodeProgress = episodeProgressMap,
+                blurUnwatchedEpisodes = blurUnwatchedEpisodes,
+                showManualPlayOption = showManualPlayOption,
+                onDismiss = {
+                    showRandomEpisodeOverlay = false
+                    coroutineScope.launch { randomEpisodeFocusRequester.requestFocusAfterFrames() }
+                },
+                onPlay = { video ->
+                    if (canPlayEpisode(video)) {
+                        randomEpisodePlaybackPending = true
+                        showRandomEpisodeOverlay = false
+                        video.season?.let(onSeasonSelected)
+                    }
+                    episodeClick(video)
+                },
+                onPlayManually = { video ->
+                    if (canPlayEpisode(video)) {
+                        randomEpisodePlaybackPending = true
+                        showRandomEpisodeOverlay = false
+                        video.season?.let(onSeasonSelected)
+                    }
+                    episodeManualClick(video)
+                },
+                onStartFromBeginning = { video ->
+                    if (canPlayEpisode(video)) {
+                        randomEpisodePlaybackPending = true
+                        showRandomEpisodeOverlay = false
+                        video.season?.let(onSeasonSelected)
+                        markEpisodeRestore(video.id)
+                    }
+                    onEpisodeStartFromBeginningClick(video)
+                }
+            )
+        }
+
         selectedComment?.let { review ->
             CommentOverlay(
                 review = review,
@@ -3051,6 +3157,9 @@ private fun MetaDetailsContent(
                 description = synopsis,
                 onDismiss = { showSynopsisOverlay = false }
             )
+        }
+        if (randomEpisodePlaybackPending) {
+            PlaybackHandoffBackdrop(backdropUrl = heroBackdropUrl ?: meta.backdropUrl)
         }
     }
 }
@@ -3090,6 +3199,36 @@ private fun PlaybackHandoffBackdrop(backdropUrl: String?) {
     }
 }
 
+/**
+ * Fades the rows below the hero item while a full-screen trailer plays. On screens
+ * taller than the hero (lower-density TV boxes) the next row would otherwise sit over
+ * the trailer.
+ */
+private fun Modifier.fadeBelowHero(
+    listState: LazyListState,
+    alpha: State<Float>
+): Modifier = drawWithCache {
+    val layerPaint = Paint()
+    onDrawWithContent {
+        val belowHeroAlpha = alpha.value
+        if (belowHeroAlpha >= 1f) {
+            drawContent()
+            return@onDrawWithContent
+        }
+        val heroBottom = listState.layoutInfo.visibleItemsInfo
+            .firstOrNull { it.key == "hero" }
+            ?.let { (it.offset + it.size).toFloat() }
+            ?: 0f
+        clipRect(bottom = heroBottom) { this@onDrawWithContent.drawContent() }
+        if (belowHeroAlpha > 0f) {
+            layerPaint.alpha = belowHeroAlpha
+            drawContext.canvas.saveLayer(Rect(0f, heroBottom, size.width, size.height), layerPaint)
+            clipRect(top = heroBottom) { this@onDrawWithContent.drawContent() }
+            drawContext.canvas.restore()
+        }
+    }
+}
+
 @Composable
 private fun BackdropLayer(
     backdropRequest: ImageRequest,
@@ -3097,6 +3236,8 @@ private fun BackdropLayer(
     trailerUrl: String?,
     trailerAudioUrl: String?,
     isTrailerPlaying: Boolean,
+    isBackgroundTrailerPlaying: Boolean,
+    pauseBackgroundTrailerOnScroll: Boolean,
     isTrailerPaused: Boolean = false,
     showTrailerControls: Boolean,
     trailerSeekToken: Int,
@@ -3111,10 +3252,28 @@ private fun BackdropLayer(
     var showHeroBackdropUnderlay by remember(heroBackdropRequest, backdropRequest) {
         mutableStateOf(heroBackdropRequest != null)
     }
+    val isBackgroundTrailerPaused =
+        isBackgroundTrailerPlaying && pauseBackgroundTrailerOnScroll && isScrolledPastHero
+    val isBackgroundTrailerVisible = isBackgroundTrailerPlaying && !isBackgroundTrailerPaused
+    var isBackgroundTrailerRendered by remember(isBackgroundTrailerPlaying) { mutableStateOf(false) }
     val backdropAlphaState = animateFloatAsState(
-        targetValue = if (isTrailerPlaying) 0f else if (isScrolledPastHero) 0.15f else 1f,
+        targetValue = when {
+            isTrailerPlaying -> 0f
+            isBackgroundTrailerVisible && isBackgroundTrailerRendered -> 0f
+            isScrolledPastHero -> 0.15f
+            else -> 1f
+        },
         animationSpec = tween(durationMillis = if (isScrolledPastHero) 300 else 800),
         label = "backdropFade"
+    )
+    val backgroundTrailerAlphaState = animateFloatAsState(
+        targetValue = when {
+            !isBackgroundTrailerVisible -> 0f
+            isScrolledPastHero -> 0.15f
+            else -> 1f
+        },
+        animationSpec = tween(durationMillis = if (isScrolledPastHero) 300 else 800),
+        label = "backgroundTrailerFade"
     )
     val gradientAlphaState = animateFloatAsState(
         targetValue = if (isTrailerPlaying || isScrolledPastHero) 0f else 1f,
@@ -3146,14 +3305,21 @@ private fun BackdropLayer(
         TrailerPlayer(
             trailerUrl = trailerUrl,
             trailerAudioUrl = trailerAudioUrl,
-            isPlaying = isTrailerPlaying,
-            isPaused = isTrailerPaused,
+            isPlaying = isTrailerPlaying || isBackgroundTrailerPlaying,
+            isPaused = isTrailerPaused || isBackgroundTrailerPaused,
             seekRequestToken = if (showTrailerControls) trailerSeekToken else 0,
             seekDeltaMs = if (showTrailerControls) trailerSeekDeltaMs else 0L,
             onRemoteKey = onTrailerControlKey,
             onProgressChanged = onTrailerProgressChanged,
             onEnded = onTrailerEnded,
-            modifier = Modifier.fillMaxSize()
+            onFirstFrameRendered = { isBackgroundTrailerRendered = true },
+            cropToFill = isBackgroundTrailerPlaying,
+            autoCropLetterbox = isBackgroundTrailerPlaying,
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    alpha = if (isBackgroundTrailerPlaying) backgroundTrailerAlphaState.value else 1f
+                }
         )
         Box(
             modifier = Modifier
