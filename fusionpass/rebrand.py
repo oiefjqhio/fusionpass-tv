@@ -97,11 +97,13 @@ if nb != block:
 edit(f'{ROOT}/app/src/main/java/com/nuvio/tv/data/local/ServerConfigurationStore.kt', [
     ('''        capabilities = ServerCapabilities(
             emailPasswordAuth = false,
-            tvLogin = true
+            tvLogin = true,
+            watchParty = true
         ),
         isCustom = false,''', '''        capabilities = ServerCapabilities(
             emailPasswordAuth = true, // Fusion Pass: built-in backend is our self-host
-            tvLogin = true
+            tvLogin = true,
+            watchParty = false // Fusion Pass: our sync server has no watch-party functions
         ),
         isCustom = false,'''),
 ])
@@ -124,16 +126,15 @@ edit(f'{ROOT}/app/src/full/java/com/nuvio/tv/core/build/AppFeaturePolicy.kt', [
     ('val pluginsEnabled: Boolean = true', 'val pluginsEnabled: Boolean = false'),
     ('val supportNuvioEnabled: Boolean = true', 'val supportNuvioEnabled: Boolean = false'),
 ])
-edit(f'{J}/ui/screens/settings/SettingsScreen.kt', [
-    ('                SettingsCategory.CONTENT_DISCOVERY -> true\n                SettingsCategory.INTEGRATION -> true\n',
-     '                SettingsCategory.CONTENT_DISCOVERY -> false // Fusion Pass: addons come with the account\n'
-     '                SettingsCategory.INTEGRATION -> false // Fusion Pass: no debrid/metadata setup\n'),
-])
-# No tracking services (Trakt/Simkl need our own API apps; owner chose to hide them).
-edit(f'{J}/ui/screens/settings/SettingsScreen.kt', [
-    ('                SettingsCategory.INTEGRATION -> false // Fusion Pass: no debrid/metadata setup\n                SettingsCategory.ADVANCED',
-     '                SettingsCategory.INTEGRATION -> false // Fusion Pass: no debrid/metadata setup\n'
-     '                SettingsCategory.TRACKING -> false // Fusion Pass: no Trakt/Simkl\n                SettingsCategory.ADVANCED'),
+# Settings menu (upstream moved the list to SettingsCatalog.kt, 2026-10): no addon/plugin manager, no
+# debrid/metadata setup, and no tracking services (Trakt/Simkl need our own API apps; owner chose to hide them).
+edit(f'{J}/ui/screens/settings/SettingsCatalog.kt', [
+    ('        SettingsCategory.EXPERIENCE -> false\n        else -> true\n',
+     '        SettingsCategory.EXPERIENCE -> false\n'
+     '        SettingsCategory.CONTENT_DISCOVERY -> false // Fusion Pass: addons come with the account\n'
+     '        SettingsCategory.INTEGRATION -> false // Fusion Pass: no debrid/metadata setup\n'
+     '        SettingsCategory.TRACKING -> false // Fusion Pass: no Trakt/Simkl\n'
+     '        else -> true\n'),
 ])
 edit(f'{J}/ui/screens/settings/AboutScreen.kt', [('"https://nuvio.tv/privacy-policy"', '"https://fusionpass.shop/privacy"')])
 edit(f'{J}/ui/screens/account/AuthQrSignInScreen.kt', [('"https://nuvio.tv/terms"', '"https://fusionpass.shop/terms"')])
@@ -210,8 +211,8 @@ if not os.path.exists(f'{P}/FusionPassAnimeAudio.kt') or open(f'{P}/FusionPassAn
     changed.append('app/src/main/java/com/nuvio/tv/ui/screens/player/FusionPassAnimeAudio.kt')
 S = f'{J}/ui/screens/settings/PlaybackAudioSettings.kt'
 edit(S, [
-    ('            AudioLanguageOption.DEFAULT -> stringResource(R.string.audio_lang_default)\n            AudioLanguageOption.DEVICE -> stringResource(R.string.audio_lang_device)\n            AudioLanguageOption.ORIGINAL -> stringResource(R.string.audio_lang_original)\n            else -> AVAILABLE_SUBTITLE_LANGUAGES',
-     '            AudioLanguageOption.FP_AUTO -> FP_AUTO_LABEL\n            AudioLanguageOption.DEFAULT -> stringResource(R.string.audio_lang_default)\n            AudioLanguageOption.DEVICE -> stringResource(R.string.audio_lang_device)\n            AudioLanguageOption.ORIGINAL -> stringResource(R.string.audio_lang_original)\n            else -> AVAILABLE_SUBTITLE_LANGUAGES'),
+    ('    AudioLanguageOption.DEFAULT -> stringResource(R.string.audio_lang_default)\n    AudioLanguageOption.DEVICE -> stringResource(R.string.audio_lang_device)\n    AudioLanguageOption.ORIGINAL -> stringResource(R.string.audio_lang_original)\n    else -> AVAILABLE_SUBTITLE_LANGUAGES',
+     '    AudioLanguageOption.FP_AUTO -> FP_AUTO_LABEL\n    AudioLanguageOption.DEFAULT -> stringResource(R.string.audio_lang_default)\n    AudioLanguageOption.DEVICE -> stringResource(R.string.audio_lang_device)\n    AudioLanguageOption.ORIGINAL -> stringResource(R.string.audio_lang_original)\n    else -> AVAILABLE_SUBTITLE_LANGUAGES'),
     ('    val specialOptions = listOf(\n        AudioLanguageOption.DEFAULT to stringResource(R.string.audio_lang_default),',
      '    val specialOptions = listOf(\n        AudioLanguageOption.FP_AUTO to FP_AUTO_LABEL,\n        AudioLanguageOption.DEFAULT to stringResource(R.string.audio_lang_default),'),
 ])

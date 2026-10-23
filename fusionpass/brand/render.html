@@ -1,17 +1,30 @@
 <!doctype html><html><head><meta charset="utf-8"><style>
-@font-face{font-family:LS;src:url(LeagueSpartan.woff2) format('woff2');font-weight:100 900}
+/* Fusion Pass brand renders (logo v2, 2026-10-23): logo.svg = app icon (ticket mark on the indigo tile),
+   mark.svg = the ticket mark alone, wordmark.svg = mark + outlined "FusionPass" (dark variant).
+   Source: Shared work folder\fusionpass\logo-v2 (approved option B). Rubik is OFL. */
+@font-face{font-family:Rubik;src:url(Rubik-700.woff2) format('woff2');font-weight:700}
+@font-face{font-family:Rubik;src:url(Rubik-500.woff2) format('woff2');font-weight:500}
 html,body{margin:0;background:transparent}
 .box{display:flex;align-items:center;justify-content:center;overflow:hidden}
-.word{font-family:LS;font-weight:700;color:#fff;letter-spacing:-0.02em;white-space:nowrap}
+.word{font-family:Rubik;font-weight:700;color:#F5F5FF;letter-spacing:-0.01em;white-space:nowrap}
+.word b{font-weight:500;color:#A5B4FC}
 </style></head><body><div id="root"></div>
 <script>
 const q=new URLSearchParams(location.search), kind=q.get('k'), W=+q.get('w'), H=+q.get('h');
 const r=document.getElementById('root'); r.className='box'; r.style.width=W+'px'; r.style.height=H+'px';
-const logo=(s)=>`<img src="logo.svg" style="width:${s}px;height:${s}px;display:block">`;
+const TILE='linear-gradient(135deg,#1E1B4B,#0B1026)';
+const img=(f,s,extra='')=>`<img src="${f}" style="width:${s}px;height:${s}px;display:block;${extra}">`;
+const logo=(s)=>img('logo.svg',s);
+const mark=(s,extra)=>img('mark.svg',s,extra);
+// The mark's artwork fills about 87% of its box; adaptive-icon layers keep it inside the 66/108 safe zone.
 if(kind==='icon'){ r.innerHTML=logo(W); }
-if(kind==='mark'){ r.innerHTML=logo(Math.round(W*0.82)); }
-if(kind==='wordmark'){ r.style.gap=Math.round(H*0.12)+'px'; r.innerHTML=logo(Math.round(H*0.62))+`<span class="word" style="font-size:${Math.round(H*0.4)}px">Fusion Pass</span>`; }
-if(kind==='text'){ r.innerHTML=`<span class="word" style="font-size:${Math.round(H*0.72)}px">Fusion Pass</span>`; }
-if(kind==='banner'){ r.style.background='linear-gradient(135deg,#16151c,#0e0d12)'; r.style.gap=Math.round(H*0.08)+'px';
-  r.innerHTML=logo(Math.round(H*0.46))+`<span class="word" style="font-size:${Math.round(H*0.2)}px">Fusion Pass</span>`; }
+if(kind==='mark'){ r.innerHTML=mark(Math.round(W*0.96)); }
+if(kind==='glyph'){ r.innerHTML=mark(Math.round(W*0.72)); }
+if(kind==='mono'){ r.innerHTML=img('mono.svg',Math.round(W*0.72),'filter:brightness(0) invert(1)'); } // no drop shadow: Android uses the alpha only
+if(kind==='round'){ r.innerHTML=`<div style="width:${W}px;height:${W}px;border-radius:50%;overflow:hidden;background:${TILE};display:flex;align-items:center;justify-content:center">${mark(Math.round(W*0.84))}</div>`; }
+if(kind==='maskable'){ r.style.background=TILE; r.innerHTML=mark(Math.round(W*0.68)); }
+if(kind==='splash'){ r.innerHTML=mark(Math.round(W*0.86)); }
+if(kind==='wordmark'){ r.innerHTML=`<img src="wordmark.svg" style="width:${Math.min(Math.round(W*0.96),Math.round(H*446/120))}px;height:auto;display:block">`; }
+if(kind==='text'){ r.innerHTML=`<span class="word" style="font-size:${Math.round(H*0.72)}px">Fusion<b>Pass</b></span>`; }
+if(kind==='banner'){ r.style.background=TILE; r.innerHTML=`<img src="wordmark.svg" style="width:${Math.round(W*0.74)}px;display:block">`; }
 </script></body></html>
