@@ -36,6 +36,9 @@ internal fun visibleSettingsCategories(
         SettingsCategory.WATCH_PARTY -> isWatchPartyAvailable
         SettingsCategory.DEBUG -> isDebugBuild && !isEssentialMode
         SettingsCategory.EXPERIENCE -> false
+        SettingsCategory.CONTENT_DISCOVERY -> false // Fusion Pass: addons come with the account
+        SettingsCategory.INTEGRATION -> false // Fusion Pass: no debrid/metadata setup
+        SettingsCategory.TRACKING -> false // Fusion Pass: no Trakt/Simkl
         else -> true
     }
 }

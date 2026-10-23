@@ -369,7 +369,7 @@
     <string name="appearance_settings_style">Estilo das Configurações</string>
     <string name="appearance_settings_style_subtitle">Escolha como deseja visualizar as telas de configuração</string>
     <string name="appearance_launcher_artwork">Arte do App</string>
-    <string name="appearance_launcher_artwork_subtitle">Escolha como o Nuvio aparece na tela inicial da sua TV</string>
+    <string name="appearance_launcher_artwork_subtitle">Escolha como o Fusion Pass aparece na tela inicial da sua TV</string>
     <string name="ambient_mode_title">Modo Ambiente</string>
     <string name="ambient_mode_subtitle">Exiba artes dos seus catálogos enquanto a TV estiver em espera</string>
     <string name="ambient_mode_enabled_subtitle">Preencha a tela com planos de fundo após um período sem usar o controle remoto</string>
@@ -389,7 +389,7 @@
     <string name="appearance_app_icon_picker_title">Escolher Ícone e Banner</string>
     <string name="appearance_app_icon_picker_subtitle">Cada estilo vem com um ícone quadrado e um banner para TV combinando</string>
     <string name="appearance_app_icon_confirmation_title">Trocar Ícone do App?</string>
-    <string name="appearance_app_icon_confirmation_message">Ao mudar para %1$s o Nuvio será fechado. O banner da TV pode precisar que você reinicie o aparelho para atualizar. Selecione OK para continuar.</string>
+    <string name="appearance_app_icon_confirmation_message">Ao mudar para %1$s o Fusion Pass será fechado. O banner da TV pode precisar que você reinicie o aparelho para atualizar. Selecione OK para continuar.</string>
     <string name="appearance_app_icon_change_failed">Não foi possível trocar o ícone e o banner. Tente novamente.</string>
     <string name="appearance_app_icon_original">Original</string>
     <string name="appearance_app_icon_arctic_blue">Azul Ártico</string>
@@ -437,7 +437,7 @@
     <string name="licenses_attributions_section_ui">BIBLIOTECAS DE INTERFACE</string>
     <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
     <string name="licenses_attributions_haze_body">Usado para efeitos de desfoque no fundo. Criado por Chris Banes. Licenciado sob a Licença Apache, Versão 2.0.</string>
-    <string name="licenses_attributions_nuvio_title">Nuvio TV</string>
+    <string name="licenses_attributions_nuvio_title">Based on Nuvio TV (GPL-3.0)</string>
     <string name="licenses_attributions_nuvio_body">Código-fonte e os termos de licença estão disponíveis no repositório do projeto. Licenciado sob a GNU General Public License v3.0.</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">O Fusion Pass utiliza a API do TMDB para metadados de filmes e séries, artes, trailers, elenco, detalhes de produção, coleções e recomendações. Este produto usa a API do TMDB, mas não é endossado ou certificado pelo TMDB.</string>
@@ -450,11 +450,11 @@
     <string name="licenses_attributions_torbox_title">TorBox</string>
     <string name="licenses_attributions_torbox_body">O Fusion Pass se conecta ao TorBox para autenticação de conta, acesso à biblioteca na nuvem, verificação de cache e recursos de reprodução na nuvem. O Fusion Pass não é afiliado ou endossado pelo TorBox.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
-    <string name="licenses_attributions_mdblist_body">O Nuvio utiliza o MDBList para avaliações, histórico de assistidos e acompanhamento de reprodução. O Nuvio não é afiliado nem endossado pelo MDBList.</string>
+    <string name="licenses_attributions_mdblist_body">O Fusion Pass utiliza o MDBList para avaliações, histórico de assistidos e acompanhamento de reprodução. O Fusion Pass não é afiliado nem endossado pelo MDBList.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
-    <string name="licenses_attributions_introdb_body">O Nuvio utiliza a API do IntroDB para introduções, recaps, créditos e marcações de prévias fornecidas pela comunidade, usadas nos controles de pular. O Nuvio não é afiliado nem endossado pelo IntroDB.</string>
+    <string name="licenses_attributions_introdb_body">O Fusion Pass utiliza a API do IntroDB para introduções, recaps, créditos e marcações de prévias fornecidas pela comunidade, usadas nos controles de pular. O Fusion Pass não é afiliado nem endossado pelo IntroDB.</string>
     <string name="licenses_attributions_imdb_title">IMDb Non-Commercial Datasets</string>
-    <string name="licenses_attributions_imdb_body">O Nuvio utiliza conjuntos de dados não-comerciais do IMDb, incluindo title.ratings.tsv.gz, para avaliações e contagem de votos do IMDb. Informações cortesia do IMDb (https://www.imdb.com). Usado com permissão. Os dados do IMDb são para uso pessoal e não-comercial sob os termos do IMDb.</string>
+    <string name="licenses_attributions_imdb_body">O Fusion Pass utiliza conjuntos de dados não-comerciais do IMDb, incluindo title.ratings.tsv.gz, para avaliações e contagem de votos do IMDb. Informações cortesia do IMDb (https://www.imdb.com). Usado com permissão. Os dados do IMDb são para uso pessoal e não-comercial sob os termos do IMDb.</string>
     <string name="licenses_attributions_exoplayer_title">AndroidX Media3 ExoPlayer 1.8.0</string>
     <string name="licenses_attributions_exoplayer_body">Usado como motor de reprodução Android. Licenciado sob a Apache License, Versão 2.0.</string>
     <string name="licenses_attributions_libmpv_title">libmpv / libmpv-android</string>
@@ -1492,7 +1492,7 @@
     <string name="trakt_setting_on">Ativado</string>
     <string name="trakt_setting_off">Desativado</string>
     <string name="trakt_watch_progress_trakt_selected">Fonte de progresso definida para Trakt</string>
-    <string name="trakt_watch_progress_nuvio_selected">Fonte de progresso definida para Nuvio Sync</string>
+    <string name="trakt_watch_progress_nuvio_selected">Fonte de progresso definida para Fusion Pass Sync</string>
     <string name="trakt_continue_watching_window">Janela Continuar assistindo</string>
     <string name="trakt_continue_watching_subtitle">Histórico Trakt para Continuar assistindo.</string>
     <string name="trakt_unaired_next_up">Próximos episódios não exibidos</string>

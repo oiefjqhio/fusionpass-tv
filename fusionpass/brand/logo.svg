@@ -1,15 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Fusion Pass">
-  <defs>
-    <linearGradient id="fp-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8b5cff"/>
-      <stop offset="1" stop-color="#3f7dff"/>
-    </linearGradient>
-    <mask id="fp-bands">
-      <path transform="translate(14 0)" d="M176 118c0-17 18-27 33-19l196 138c15 9 15 29 0 38L209 413c-15 8-33-2-33-19z" fill="#fff"/>
-      <rect x="120" y="193" width="320" height="22" fill="#000"/>
-      <rect x="120" y="297" width="320" height="22" fill="#000"/>
-    </mask>
-  </defs>
-  <rect width="512" height="512" rx="116" fill="url(#fp-bg)"/>
-  <rect width="512" height="512" fill="#fff" mask="url(#fp-bands)"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" style="display:block"><defs><linearGradient id="ibg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1E1B4B"/><stop offset="1" stop-color="#0B1026"/></linearGradient></defs><rect width="120" height="120" rx="28" fill="url(#ibg)"/><g transform="translate(8 8) scale(.866)"><defs>
+  <linearGradient id="iga" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C084FC"/><stop offset="1" stop-color="#7C3AED"/></linearGradient>
+  <linearGradient id="igb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60A5FA"/><stop offset="1" stop-color="#2563EB"/></linearGradient>
+  <radialGradient id="igm" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#A5B4FC"/><stop offset=".5" stop-color="#6366F1"/><stop offset="1" stop-color="#3730A3"/></radialGradient>
+  <linearGradient id="ihl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <clipPath id="ica"><path d="M-27 -23 H27 A9 9 0 0 1 36 -14 V-8 A8 8 0 0 0 36 8 V14 A9 9 0 0 1 27 23 H-27 A9 9 0 0 1 -36 14 V8 A8 8 0 0 0 -36 -8 V-14 A9 9 0 0 1 -27 -23 Z" transform="translate(44 50) rotate(-16)"/></clipPath><filter id="iblur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter></defs>
+  <g transform="translate(44 50) rotate(-16)"><path d="M-27 -23 H27 A9 9 0 0 1 36 -14 V-8 A8 8 0 0 0 36 8 V14 A9 9 0 0 1 27 23 H-27 A9 9 0 0 1 -36 14 V8 A8 8 0 0 0 -36 -8 V-14 A9 9 0 0 1 -27 -23 Z" fill="url(#iga)"/><path d="M-27 -23 H27 A9 9 0 0 1 36 -14 V-8 A8 8 0 0 0 36 8 V14 A9 9 0 0 1 27 23 H-27 A9 9 0 0 1 -36 14 V8 A8 8 0 0 0 -36 -8 V-14 A9 9 0 0 1 -27 -23 Z" fill="url(#ihl)"/><g fill="#fff" opacity=".55"><circle cx="-17" cy="-15.0" r="1.7"/><circle cx="-17" cy="-8.5" r="1.7"/><circle cx="-17" cy="-2.0" r="1.7"/><circle cx="-17" cy="4.5" r="1.7"/><circle cx="-17" cy="11.0" r="1.7"/></g></g>
+  <path d="M-27 -23 H27 A9 9 0 0 1 36 -14 V-8 A8 8 0 0 0 36 8 V14 A9 9 0 0 1 27 23 H-27 A9 9 0 0 1 -36 14 V8 A8 8 0 0 0 -36 -8 V-14 A9 9 0 0 1 -27 -23 Z" transform="translate(79 75) rotate(14)" fill="#1E1B4B" opacity="0.5" filter="url(#iblur)"/>
+  <g transform="translate(76 70) rotate(14)"><path d="M-27 -23 H27 A9 9 0 0 1 36 -14 V-8 A8 8 0 0 0 36 8 V14 A9 9 0 0 1 27 23 H-27 A9 9 0 0 1 -36 14 V8 A8 8 0 0 0 -36 -8 V-14 A9 9 0 0 1 -27 -23 Z" fill="url(#igb)" stroke="#12132B" stroke-width="5" paint-order="stroke"/><path d="M-27 -23 H27 A9 9 0 0 1 36 -14 V-8 A8 8 0 0 0 36 8 V14 A9 9 0 0 1 27 23 H-27 A9 9 0 0 1 -36 14 V8 A8 8 0 0 0 -36 -8 V-14 A9 9 0 0 1 -27 -23 Z" fill="url(#ihl)"/><g fill="#fff" opacity=".6"><circle cx="17" cy="-15.0" r="1.7"/><circle cx="17" cy="-8.5" r="1.7"/><circle cx="17" cy="-2.0" r="1.7"/><circle cx="17" cy="4.5" r="1.7"/><circle cx="17" cy="11.0" r="1.7"/></g></g>
+  <g clip-path="url(#ica)"><path d="M-27 -23 H27 A9 9 0 0 1 36 -14 V-8 A8 8 0 0 0 36 8 V14 A9 9 0 0 1 27 23 H-27 A9 9 0 0 1 -36 14 V8 A8 8 0 0 0 -36 -8 V-14 A9 9 0 0 1 -27 -23 Z" transform="translate(76 70) rotate(14)" fill="url(#igm)"/></g>
+  <g fill="#fff" transform="translate(60 60) rotate(0.00) scale(1.0000)"><polygon points="0.00,-15.00 2.76,-2.76 15.00,0.00 2.76,2.76 0.00,15.00 -2.76,2.76 -15.00,0.00 -2.76,-2.76" stroke-linejoin="round"/></g><g fill="#fff"><g opacity="1.000"><polygon points="83.00,36.50 83.83,40.17 87.50,41.00 83.83,41.83 83.00,45.50 82.17,41.83 78.50,41.00 82.17,40.17" stroke-linejoin="round"/></g><g opacity="1.000"><polygon points="37.00,78.50 37.64,81.36 40.50,82.00 37.64,82.64 37.00,85.50 36.36,82.64 33.50,82.00 36.36,81.36" stroke-linejoin="round"/></g></g></g></svg>

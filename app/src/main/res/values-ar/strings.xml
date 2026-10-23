@@ -573,8 +573,8 @@
     <string name="playback_engine_mvplayer">Libmpv (تجريبي)</string>
     <string name="playback_auto_switch_internal_player_on_error">التبديل التلقائي لمحرك التشغيل عند خطأ بالتشغيل</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">إذا فشل بدء التشغيل، سيتم التبديل بين ExoPlayer و libmpv تلقائياً.</string>
-    <string name="playback_engine_exoplayer_desc">أفضل توافق مع ميزات Nuvio الحالية.</string>
-    <string name="playback_engine_mvplayer_desc">يستخدم libmpv مع عناصر تحكم Nuvio (OSD). تجريبي.</string>
+    <string name="playback_engine_exoplayer_desc">أفضل توافق مع ميزات Fusion Pass الحالية.</string>
+    <string name="playback_engine_mvplayer_desc">يستخدم libmpv مع عناصر تحكم Fusion Pass (OSD). تجريبي.</string>
     <string name="playback_section_subtitles">الترجمة</string>
     <string name="playback_section_subtitles_desc">تحديد اللغة والمظهر وطريقة المعالجة.</string>
     <string name="playback_afr_off">معطل</string>

@@ -371,7 +371,7 @@
     <string name="appearance_settings_style">Ayarlar Stili</string>
     <string name="appearance_settings_style_subtitle">Ayar ekranlarının nasıl görüneceğini seç</string>
     <string name="appearance_launcher_artwork">Başlatıcı Görseli</string>
-    <string name="appearance_launcher_artwork_subtitle">Nuvio\'nun TV ana ekranında nasıl görüneceğini seçin</string>
+    <string name="appearance_launcher_artwork_subtitle">Fusion Pass\'nun TV ana ekranında nasıl görüneceğini seçin</string>
     <string name="ambient_mode_title">Ortam Modu</string>
     <string name="ambient_mode_subtitle">TV boştayken kataloglarınızdan görseller gösterin</string>
     <string name="ambient_mode_enabled_subtitle">Kumanda girişi olmadan geçen bir sürenin ardından ekranı arka plan görselleriyle doldurun</string>

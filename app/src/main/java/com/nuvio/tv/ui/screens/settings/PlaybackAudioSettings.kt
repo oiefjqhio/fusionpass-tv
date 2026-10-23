@@ -108,6 +108,7 @@ internal fun PlaybackAudioSection(
 
 @Composable
 internal fun audioLanguageLabel(code: String): String = when (code) {
+    AudioLanguageOption.FP_AUTO -> FP_AUTO_LABEL
     AudioLanguageOption.DEFAULT -> stringResource(R.string.audio_lang_default)
     AudioLanguageOption.DEVICE -> stringResource(R.string.audio_lang_device)
     AudioLanguageOption.ORIGINAL -> stringResource(R.string.audio_lang_original)

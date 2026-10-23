@@ -1786,7 +1786,7 @@
     <string name="appearance_app_icon_picker_title">Wybierz ikonę i baner</string>
     <string name="appearance_app_icon_rose_gold">Rose Gold</string>
     <string name="appearance_launcher_artwork">Grafika launchera</string>
-    <string name="appearance_launcher_artwork_subtitle">Wybierz jak Nuvio wygląda na ekranie głównym TV</string>
+    <string name="appearance_launcher_artwork_subtitle">Wybierz jak Fusion Pass wygląda na ekranie głównym TV</string>
     <string name="ambient_mode_title">Tryb Ambient</string>
     <string name="ambient_mode_subtitle">Wyświetlaj grafiki z katalogów gdy TV jest nieaktywny</string>
     <string name="ambient_mode_enabled_subtitle">Wypełnij ekran tłami po okresie bez użycia pilota</string>
@@ -2333,7 +2333,7 @@
     <string name="licenses_attributions_section_ui">BIBLIOTEKI UI</string>
     <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
     <string name="licenses_attributions_haze_body">Używany do efektów rozmycia tła. Stworzony przez Chrisa Banesa. Licencjonowany na licencji Apache, wersja 2.0.</string>
-    <string name="licenses_attributions_subtitle">Dostawcy danych, podziękowania i licencje odtwarzania Android używane przez Nuvio TV.</string>
+    <string name="licenses_attributions_subtitle">Dostawcy danych, podziękowania i licencje odtwarzania Android używane przez Fusion Pass.</string>
     <string name="licenses_attributions_title">Licencje i atrybucje</string>
     <string name="licenses_attributions_tmdb_body">Fusion Pass korzysta z API TMDB do metadanych filmów i seriali, grafik, zwiastunów, obsady, szczegółów produkcji, kolekcji i rekomendacji. Ten produkt korzysta z API TMDB, ale nie jest zatwierdzony ani certyfikowany przez TMDB.</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>

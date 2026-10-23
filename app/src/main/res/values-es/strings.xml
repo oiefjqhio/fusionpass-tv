@@ -372,7 +372,7 @@
     <string name="appearance_settings_style">Estilo de configuración</string>
     <string name="appearance_settings_style_subtitle">Elige cómo se presentan las pantallas de configuración</string>
     <string name="appearance_launcher_artwork">Aspecto en la pantalla de inicio</string>
-    <string name="appearance_launcher_artwork_subtitle">Elige cómo aparece Nuvio en la pantalla de inicio de tu TV</string>
+    <string name="appearance_launcher_artwork_subtitle">Elige cómo aparece Fusion Pass en la pantalla de inicio de tu TV</string>
     <string name="ambient_mode_title">Modo ambiente</string>
     <string name="ambient_mode_subtitle">Muestra imágenes de tus catálogos mientras el televisor está inactivo</string>
     <string name="ambient_mode_enabled_subtitle">Llena la pantalla con fondos tras un período sin usar el mando a distancia</string>

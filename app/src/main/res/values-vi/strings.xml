@@ -369,7 +369,7 @@
     <string name="appearance_settings_style">Kiểu màn hình Cài đặt</string>
     <string name="appearance_settings_style_subtitle">Chọn cách hiển thị các màn hình Cài đặt</string>
     <string name="appearance_launcher_artwork">Ảnh hiển thị Trình khởi chạy</string>
-    <string name="appearance_launcher_artwork_subtitle">Chọn cách Nuvio hiển thị trên màn hình chính TV của bạn</string>
+    <string name="appearance_launcher_artwork_subtitle">Chọn cách Fusion Pass hiển thị trên màn hình chính TV của bạn</string>
     <string name="ambient_mode_title">Chế độ môi trường xung quanh</string>
     <string name="ambient_mode_subtitle">Hiển thị ảnh từ danh mục khi TV ở chế độ chờ</string>
     <string name="ambient_mode_enabled_subtitle">Lấp đầy màn hình bằng phông nền sau một khoảng thời gian không nhận thao tác từ điều khiển</string>

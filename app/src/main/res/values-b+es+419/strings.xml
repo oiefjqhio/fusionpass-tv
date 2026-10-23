@@ -369,7 +369,7 @@
     <string name="appearance_settings_style">Estilo de configuración</string>
     <string name="appearance_settings_style_subtitle">Elige cómo se muestran las pantallas de configuración</string>
     <string name="appearance_launcher_artwork">Ilustración del launcher</string>
-    <string name="appearance_launcher_artwork_subtitle">Elige cómo aparece Nuvio en la pantalla de inicio de tu TV</string>
+    <string name="appearance_launcher_artwork_subtitle">Elige cómo aparece Fusion Pass en la pantalla de inicio de tu TV</string>
     <string name="ambient_mode_title">Modo ambiente</string>
     <string name="ambient_mode_subtitle">Muestra imágenes de tus catálogos mientras la TV está inactiva</string>
     <string name="ambient_mode_enabled_subtitle">Llena la pantalla con imágenes de fondo después de un período sin usar el control remoto</string>
@@ -475,7 +475,7 @@
     <string name="settings_playback">Reproducción</string>
     <string name="settings_trakt_subtitle">Abrir pantalla de conexión con Trakt</string>
     <string name="settings_tracking_title">Seguimiento</string>
-    <string name="settings_tracking_description">Conecta servicios de seguimiento y elige cuál usará Nuvio para tu Biblioteca y Continuar viendo.</string>
+    <string name="settings_tracking_description">Conecta servicios de seguimiento y elige cuál usará Fusion Pass para tu Biblioteca y Continuar viendo.</string>
     <string name="tracking_accounts_title">Cuentas</string>
     <string name="tracking_accounts_subtitle">Conecta y administra los servicios de seguimiento</string>
     <string name="tracking_sources_title">Fuentes</string>

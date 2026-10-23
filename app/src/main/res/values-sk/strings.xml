@@ -482,8 +482,8 @@
     <string name="advanced_section_cache">Cache</string>
     <string name="advanced_fast_horizontal_navigation">Rýchla horizontálna navigácia</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Zvýšiť rýchlosť opakovania D-padu v radoch pri zachovaní obmedzovania opakovania.</string>
-    <string name="advanced_nuvio_focus_scroll">Nuvio rolovanie zamerania</string>
-    <string name="advanced_nuvio_focus_scroll_subtitle">Použiť vlastnú globálnu animáciu rolovania zamerania a polohovanie Nuvio.</string>
+    <string name="advanced_nuvio_focus_scroll">Fusion Pass rolovanie zamerania</string>
+    <string name="advanced_nuvio_focus_scroll_subtitle">Použiť vlastnú globálnu animáciu rolovania zamerania a polohovanie Fusion Pass.</string>
     <string name="advanced_memory_only_vertical_scroll">Iba pamäťové vertikálne rolovanie</string>
     <string name="advanced_memory_only_vertical_scroll_subtitle">Preskočiť požiadavky na obrázky z disku a siete počas vertikálneho rolovania domácich radov.</string>
     <string name="advanced_compose_highlighter">Zvýrazňovač Compose</string>
@@ -1728,7 +1728,7 @@
     <string name="catalog_see_all_empty_subtitle">Skúste iný katalóg alebo sa vráťte neskôr</string>
 
     
-    <string name="layout_selection_welcome">Vitajte v Nuvio</string>
+    <string name="layout_selection_welcome">Vitajte v Fusion Pass</string>
     <string name="layout_selection_subtitle">Vyberte rozloženie domovskej obrazovky</string>
     <string name="layout_selection_continue">Pokračovať</string>
 
@@ -2270,7 +2270,7 @@
     <string name="autoplay_regex_preset_no_remux_hdr">Bez REMUX/HDR</string>
 
     
-    <string name="playback_player_internal_desc">Použiť vstavaný prehrávač NuvioTV</string>
+    <string name="playback_player_internal_desc">Použiť vstavaný prehrávač Fusion PassTV</string>
 
     
     <string name="player_torrent_peer_info">%1$d seedov · %2$d peerov</string>

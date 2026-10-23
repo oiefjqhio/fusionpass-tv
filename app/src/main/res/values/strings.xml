@@ -369,7 +369,7 @@
     <string name="appearance_settings_style">Settings Style</string>
     <string name="appearance_settings_style_subtitle">Choose how the settings screens are presented</string>
     <string name="appearance_launcher_artwork">Launcher Artwork</string>
-    <string name="appearance_launcher_artwork_subtitle">Choose how Nuvio appears on your TV home screen</string>
+    <string name="appearance_launcher_artwork_subtitle">Choose how Fusion Pass appears on your TV home screen</string>
     <string name="ambient_mode_title">Ambient Mode</string>
     <string name="ambient_mode_subtitle">Show artwork from your catalogs while the TV sits idle</string>
     <string name="ambient_mode_enabled_subtitle">Fill the screen with backdrops after a period with no remote input</string>

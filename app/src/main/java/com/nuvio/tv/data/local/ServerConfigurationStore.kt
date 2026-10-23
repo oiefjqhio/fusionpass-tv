@@ -63,9 +63,9 @@ class ServerConfigurationStore @Inject constructor(
         backendUrl = BuildConfig.SUPABASE_URL.trimEnd('/'),
         publishableKey = BuildConfig.SUPABASE_ANON_KEY,
         capabilities = ServerCapabilities(
-            emailPasswordAuth = false,
+            emailPasswordAuth = true, // Fusion Pass: built-in backend is our self-host
             tvLogin = true,
-            watchParty = true
+            watchParty = false // Fusion Pass: our sync server has no watch-party functions
         ),
         isCustom = false,
         fallbackBackendUrl = BuildConfig.SUPABASE_FALLBACK_URL.trim().trimEnd('/').takeIf { it.isNotBlank() },
